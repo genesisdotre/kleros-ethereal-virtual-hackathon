@@ -9,3 +9,42 @@ html {
 body {
   background-color: transparent; /* overriding unwanted stuff */
 }
+
+.container {
+  background-color: rgba(255,255,255,0.9);
+  padding-bottom: 15px;
+  padding-top: 15px;
+}
+
+h4 {
+  margin-bottom: 0;
+  margin-top: 1rem;
+}
+
+table {
+  border: 2px solid grey !important;
+  table-layout: fixed;
+}
+
+td, th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+td.micro, th.micro {
+  width: 50px;
+}
+
+td.narrow, th.narrow {
+  width: 100px;
+}
+
+td.timestamp, th.timestamp {
+  width: 100px;
+}
+
+.warning {
+  background-color: yellow;
+  border: 2px solid red;
+  padding: 10px;
+}

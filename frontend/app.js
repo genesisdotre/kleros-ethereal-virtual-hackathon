@@ -1,4 +1,4 @@
-var app = angular.module('app', [])
+var app = angular.module('app', ['angularMoment'])
 
 app.run(function($rootScope) {
   $rootScope.address = "0xb54cdeeDf09F106c5eC4a14ce121740e7112E29D"; // https://ropsten.etherscan.io/address/0x2328bc22d5705b2cde99e02a780e2fecdca4ad6b
@@ -28,6 +28,18 @@ app.controller('ctrl', function($scope, $q) {
 
   $scope.contract.timestampEnd.call(function(err, res) {
     $scope.timestampEnd = res.toNumber();
+  });  
+
+  $scope.contract.howManyGuaranteed.call(function(err, res) {
+    $scope.howManyGuaranteed = res.toNumber();
+  });    
+
+  $scope.contract.priceGuaranteed.call(function(err, res) {
+    $scope.priceGuaranteed = res.toNumber();
+  });  
+
+  $scope.contract.howMany.call(function(err, res) {
+    $scope.howMany = res.toNumber();
   });
 
   $scope.contract.getAccountListLenght(function(err, res) {
@@ -61,8 +73,7 @@ app.controller('ctrl', function($scope, $q) {
         bidder: event.args.bidder,
         price: +web3.fromWei( event.args.price.toNumber() ),
         timestamp: event.args.timestamp.toNumber(),
-        tx: event.transactionHash,
-        block: event.blockNumber
+        tx: event.transactionHash
       }
       $scope.bids.push(bid);
     });
@@ -80,8 +91,7 @@ app.controller('ctrl', function($scope, $q) {
         bidder: event.args.addr,
         price: +web3.fromWei( event.args.value.toNumber() ),
         timestamp: event.args.timestamp.toNumber(),
-        tx: event.transactionHash,
-        block: event.blockNumber
+        tx: event.transactionHash
       }
       $scope.guranteedBids.push(bid);
     });
@@ -99,8 +109,7 @@ app.controller('ctrl', function($scope, $q) {
   			bidder: event.args.addr,
   			price: +web3.fromWei( event.args.value.toNumber() ),
   			timestamp: event.args.timestamp.toNumber(),
-  			tx: event.transactionHash,
-  			block: event.blockNumber
+  			tx: event.transactionHash
   		}
   		$scope.refunds.push(refund);
   	});
@@ -110,14 +119,10 @@ app.controller('ctrl', function($scope, $q) {
 
 
 
-
-
   // TODO: display popup as new bid is incoming
   // BidEvent = Instance.BidEvent();
   // BidEvent.watch(function(error, result){
   //  console.log(error, result);
   // });
-
-
 
 });
