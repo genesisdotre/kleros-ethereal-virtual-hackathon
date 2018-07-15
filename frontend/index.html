@@ -21,7 +21,7 @@
     <meta name="twitter:image" content="https://genesis.re/flower.jpg">
 
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
@@ -40,27 +40,40 @@
 
 
   </head>
-  <body id="body" ng-app="app" ng-controller="ctrl">
+  <body ng-app="app" ng-controller="ctrl" ng-cloak>
   
 
       <div class="container">
 
         <div class="warning">
-          Bitcoin, Cryptocurrencies, Ethereum, Smart Contracts are all in the   early days of adoption.<br><br>
-          This is an experimental software and while every effort was made to ensure it works "just fine", there might be some rought edges.<br><br>
-          Get the code on <a href="https://github.com/genesisdotre/ethereum-auction">GitHub</a>, verify the source on <a href="https://https://ropsten.etherscan.io/address/{{ address }}#code">Etherscan</a>. Clone the repo, run the Truffle tests.<br><br>
-          Currently it is deployed to testnet <i>(Ropsten)</i> where you can play with test ETH <i>(monopoly money)</i>.<br><br>
+          Bitcoin, Cryptocurrencies, Ethereum, Smart Contracts are all in the   early days of adoption.
+          <br><br>
+          This is an experimental software and while every effort was made to ensure it works "just fine", there might be some rought edges.
+          <br><br>
+          Get the code on <a href="https://github.com/genesisdotre/ethereum-auction">GitHub</a>, 
+          verify the source on <a href="https://https://ropsten.etherscan.io/address/{{ address }}#code">Etherscan</a>.
+          <br>
+          Clone the repo, run the Truffle tests.
+          <br><br>
+          Currently it is deployed to testnet <i>(Ropsten)</i> where you can play with test ETH <i>(monopoly money)</i>.
+          <br><br>
           The same contract at the same address is deployed to the mainnet <i>(real ETH, real money)</i> - reducing the risk of loss.
         </div>
 
         <span ng-show="$root.ropsten">
           <h3>{{ description }}</h3>
 
-          <h3>Address: {{ address }}</h3>
+          <h3><input readonly="" class="address" value="{{ address }}"></h3>
           
-          <h3>Time to end: {{ timestampEnd | amFromUnix | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}</h3>
+          <h4>Summary of the auction:</h4>
 
-          Follow Casa Crypto:&nbsp;&nbsp;
+          <strong>Auction ends:</strong> {{ timestampEnd | amFromUnix | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}<br>
+          <strong>How many memberships auctioned:</strong> {{ howMany }}<br>
+          <strong>How many guaranteed left:</strong> {{ howManyGuaranteed }}<br>
+          <strong>Guaranteed memberships sold:</strong> {{ guaranteedSold }}<br>
+          <strong>Guaranteed price:</strong> {{ priceGuaranteed.toFixed(2) }} ETH<br>
+
+          <strong>Follow Casa Crypto:</strong>&nbsp;&nbsp;
           
           <a href="https://www.instagram.com/casacrypto/"><i class="fab fa-instagram"></i></a>&nbsp;&nbsp;
           <a href="https://t.me/CasaCryptoIbiza"><i class="fab fa-telegram-plane"></i></a>&nbsp;&nbsp;

@@ -52,3 +52,13 @@ td.timestamp, th.timestamp {
   border: 5px solid red;
   padding: 10px;
 }
+
+.address {
+    font-family: monospace;
+    width: 425px;
+    padding: 8px;
+    max-width: calc(100vw - 30px);
+    font-size: 12pt;
+    background-color: black;
+    color: white;
+}

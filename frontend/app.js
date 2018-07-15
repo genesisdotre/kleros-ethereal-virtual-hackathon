@@ -43,7 +43,7 @@ app.controller('ctrl', function($scope, $q) {
   });    
 
   $scope.contract.priceGuaranteed.call(function(err, res) {
-    $scope.priceGuaranteed = res.toNumber();
+    $scope.priceGuaranteed = +web3.fromWei( res.toNumber() );
   });  
 
   $scope.contract.howMany.call(function(err, res) {
@@ -72,7 +72,7 @@ app.controller('ctrl', function($scope, $q) {
   });  
 
   $scope.contract.getGuaranteedContributorsLenght(function(err, res) {
-    lenght = res.toNumber()
+    $scope.guaranteedSold = lenght = res.toNumber()
     for (i=0; i<lenght; i++) {
       $scope.contract.guaranteedContributors(i, function(err2, res2) {
         $scope.contract.guaranteedContributions(res2, function(err3, res3) {
