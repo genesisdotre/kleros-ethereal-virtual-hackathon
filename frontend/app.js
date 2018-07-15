@@ -11,6 +11,14 @@ app.run(function($rootScope) {
     web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/hi8olE2lF8OqjyBSdtSm "));
   }
 
+  web3.version.getNetwork((err, network) => {
+    if(network === "3") {
+      $rootScope.ropsten = true;
+    } else {
+      $rootScope.ropsten = false;
+    }
+  });
+
   $rootScope.metamask = web3.currentProvider.isMetaMask;
   $rootScope.contract = web3.eth.contract($rootScope.ABI).at($rootScope.address);
 });
