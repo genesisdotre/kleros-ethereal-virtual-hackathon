@@ -24,18 +24,20 @@ contract Auction {
   uint public increaseTimeBy = 24 * 60 * 60;
   
 
-  event BidEvent(address indexed bidder, uint indexed price, uint indexed timestamp); // cannot have event and struct with the same name
-  event Refund(address indexed addr, uint indexed value, uint indexed timestamp);
+  event BidEvent(address indexed bidder, uint value, uint timestamp); // cannot have event and struct with the same name
+  event Refund(address indexed bidder, uint value, uint timestamp);
 
   
   modifier onlyOwner { require(owner == msg.sender, "only owner"); _; }
   modifier onlyWinner { require(winner == msg.sender, "only winner"); _; }
   modifier ended { require(now > timestampEnd, "not ended yet"); _; }
 
+
   function setDescription(string _description) public onlyOwner() {
     description = _description;
   }
 
+  // TODO: Override this method in the derived functions, think about on-chain / off-chain communication mechanism
   function setInstructions(string _instructions) public ended() onlyWinner()  {
     instructions = _instructions;
   }
@@ -282,7 +284,7 @@ contract AuctionMultiple is Auction {
 // File: contracts/AuctionMultipleGuaranteed.sol
 
 // 100000000000000000, "membership in Casa Crypto", 1546300799, "0x8855Ef4b740Fc23D822dC8e1cb44782e52c07e87", 20, 5, 5000000000000000000
-// 100000000000000000, "membership in Casa Crypto", 1546300799, "0x85A363699C6864248a6FfCA66e4a1A5cCf9f5567", 20, 5, 5000000000000000000
+// 100000000000000000, "membership in Casa Crypto", 1546300799, "0x85A363699C6864248a6FfCA66e4a1A5cCf9f5567", 2, 1, 5000000000000000000
 
 // For instance: effering limited "Early Bird" tickets that are guaranteed
 contract AuctionMultipleGuaranteed is AuctionMultiple {
@@ -293,7 +295,7 @@ contract AuctionMultipleGuaranteed is AuctionMultiple {
   mapping (address => uint) public guaranteedContributions;
   function getGuaranteedContributorsLenght() public constant returns(uint) { return guaranteedContributors.length; } // lenght is not accessible from DApp, exposing convenience method: https://stackoverflow.com/questions/43016011/getting-the-length-of-public-array-variable-getter
 
-  event GuaranteedBid(address addr, uint value, uint timestamp);
+  event GuaranteedBid(address indexed bidder, uint value, uint timestamp);
   
   constructor(uint _price, string _description, uint _timestampEnd, address _beneficiary, uint _howMany, uint _howManyGuaranteed, uint _priceGuaranteed) AuctionMultiple(_price, _description, _timestampEnd, _beneficiary, _howMany) public {
     require(_howMany >= _howManyGuaranteed, "The number of guaranteed items should be less or equal than total items. If equal = fixed price sell, kind of OK with me");
@@ -336,7 +338,5 @@ contract AuctionMultipleGuaranteed is AuctionMultiple {
     }
 
     beneficiary.transfer(sumContributions);
-  }  
-
-
+  }
 }

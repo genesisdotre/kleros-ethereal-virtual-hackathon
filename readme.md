@@ -52,6 +52,8 @@ https://en.wikiquote.org/wiki/Donald_Knuth#Computer_Programming_as_an_Art_(1974)
 * Can `buyerA` outbid `buyerA`? Does it make any sense in terms of game theory incentives? Pay extra 25% to extend the auction? It's not me to judge, there could be a valid reason for that.
 * With single item auction, outbidding towards the end makes sense to increase time. Does it make sense with multiple items?
 * How winners communicate with the owner about shipping address? Currently setting instructions on-chain. Signing message with the private key (complicated) or off-chain communication possible too.
+* So many fields when reading contract on Etherscan (inheritance surely can be simplified)
+* Someone can reach GuaranteedBid level in many steps. Currently only "in one go" supported
 
 ### Security audits
 * Please don't [hack](https://ethernaut.zeppelin.solutions/).

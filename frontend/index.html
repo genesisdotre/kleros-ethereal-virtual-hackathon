@@ -68,9 +68,10 @@
 
           <strong>Deployed to <a href="https://https://ropsten.etherscan.io/address/{{ address }}#code">Ropsten</a> (testnet)</strong><br>
           <strong>Auction ends:</strong> {{ timestampEnd | amFromUnix | amDateFormat:'ddd, MMM Do YYYY, h:mm:ss a'}}<br>
-          <strong>How many memberships auctioned:</strong> {{ howMany }}<br>
+          <strong>Starting price:</strong> {{ price.toFixed(2) }} ETH<br>
+          <strong>How many initially for sale:</strong> {{ howMany + howManyGuaranteed }}<br>
+          <strong>How many left:</strong> {{ howMany }} ({{ guaranteedSold }} guaranteed sold) <br>
           <strong>How many guaranteed left:</strong> {{ howManyGuaranteed }}<br>
-          <strong>Guaranteed memberships sold:</strong> {{ guaranteedSold }}<br>
           <strong>Guaranteed price:</strong> {{ priceGuaranteed.toFixed(2) }} ETH<br>
 
           <strong>Follow Casa Crypto:</strong>&nbsp;&nbsp;
@@ -88,10 +89,10 @@
               <th>account</th>
               <th class="micro">bid</th>
             </tr>
-            <tr ng-repeat="account in accounts| orderBy:'bid':true">
+            <tr ng-repeat="account in accounts| orderBy:'value':true">
               <td class="index">{{ $index + 1 }}.</td>
-              <td>{{ account.address }}</td>
-              <td class="micro">{{ account.bid.toFixed(2) }}</td>
+              <td>{{ account.bidder }}</td>
+              <td class="micro">{{ account.value.toFixed(2) }}</td>
             </tr>
           </table>        
 
@@ -104,8 +105,8 @@
             </tr>
             <tr ng-repeat="bid in guranteedBids">
               <td class="index">{{ $index + 1 }}.</td>
-              <td>{{ bid.address }}</td>
-              <td class="micro">{{ bid.bid.toFixed(2) }}</td>
+              <td>{{ bid.bidder }}</td>
+              <td class="micro">{{ bid.value.toFixed(2) }}</td>
             </tr>
           </table>   
 
@@ -121,10 +122,10 @@
                 <th class="timestamp">timestamp</th>
                 <th class="narrow">tx</th>
               </tr>
-              <tr ng-repeat="bid in bids">
+              <tr ng-repeat="bid in bids| orderBy:'timestamp':true">
                 <td class="index">{{ $index + 1 }}.</td>
                 <td>{{ bid.bidder }}</td>
-                <td class="micro">{{ bid.price.toFixed(2) }}</td>
+                <td class="micro">{{ bid.value.toFixed(2) }}</td>
                 <td class="timestamp"><span am-time-ago="bid.timestamp | amFromUnix"></span></td>
                 <td class="narrow"><a href="https://ropsten.etherscan.io/tx/{{ bid.tx }}" title="{{ bid.tx }}">{{ bid.tx }}</a></td>
           
@@ -143,7 +144,7 @@
               <tr ng-repeat="bid in refunds">
                 <td class="index">{{ $index + 1 }}.</td>
                 <td>{{ bid.bidder }}</td>
-                <td class="micro">{{ bid.price.toFixed(2) }}</td>
+                <td class="micro">{{ bid.value.toFixed(2) }}</td>
                 <td class="timestamp"><span am-time-ago="bid.timestamp | amFromUnix"></span></td>
                 <td class="narrow"><a href="https://ropsten.etherscan.io/tx/{{ bid.tx }}" title="{{ bid.tx }}">{{ bid.tx }}</a></td>
               </tr>
@@ -157,19 +158,19 @@
           </span>
         </span>
         <span ng-show="! $root.ropsten">
-          <h1 style="font-family: monospace; font-weight: bold; border: 5px solid black; padding: 10px;margin-top: .5rem">please switch to the Ropsten testnet</h1>
+          <h1 style="font-family: monospace; font-weight: bold; border: 5px solid black; padding: 10px; margin-top: .5rem; margin-bottom: 20px;">please switch to the Ropsten testnet</h1>
           <img src="images/metamask.jpg" style="border: 5px solid gray; width: 100%; max-width: 100%;">
         </span>
 
-        <span style="font-size: 0.6em">
+        <span style="font-size: 0.75em">
           <br>
           <strong>About me and this site</strong><br>
           <p>My name is not important, I have many names. You check my personal website <a href="https://michalstefanow.com">MichalStefanow.com</a>. Realised that traditional model of employment does not work, created <a href="https://astralship.org">astralship.org</a> - forward thinking coliving and coworking space in an old church in the UK. </p>
           <p><a href="https://genesis.re">genesis.re</a> - beginning, source, origin. As Elon Musk is making journey to Mars a reality, the important question to ask - same democracy as in ancient Greece or maybe we can use some modern technology?</p>
           <p>While some people are crypto rich, I'm rich in other terms - health is new wealth, time is new money. <a href="https://steemit.com/cafcass/@osdivorce/legal-fiction-thought-police-getting-ready-for-final-hearing-21st-aug-2018">Open source divorce on the blockchain</a> consumes a lot of resources and now I'm heavily investing into skills and education.</p>
           <p>Back in 2017 I didn't know how to deploy my own ICO contract, now I'm getting more proficient with coding Ethereum and the smart contract here was initially created to auction places on the technical workshop. Same mechanism can be used for auctioning membership to an exclusive villa.</p>
-          <p>My ideal role would involve working along side other impact entrepreneurs while utilising my technical skills, here is my <a href="https://docs.google.com/document/d/1iFO_mhmsErnZMzy56Y8WTqciK_uMu-fUOS5k8pqUoaY/edit?usp=sharing">Crypto CV on Google Docs</a>. I can talk with computers and real humans, apologies in advance if some of my views are considered controversial - not trying to please evryone and their dog, instead manifesting highest vibration and long-lasting meaningful positive impact.</p>
-          <!-- <p>I also do some yoga and other shananigans: <a href="https://hackeryoga.com">hackeryoga.com</a> -->
+          <p>My ideal role would involve working along side other impact entrepreneurs while utilising my technical skills, here is my <a href="https://docs.google.com/document/d/1iFO_mhmsErnZMzy56Y8WTqciK_uMu-fUOS5k8pqUoaY/edit?usp=sharing">Crypto CV on Google Docs</a>. I can talk with computers and real humans, apologies in advance if some of my views are considered controversial - not trying to please everyone and their dog.</p>
+          <p>I also do some <a href="https://hackeryoga.com">hackeryoga.com</a> and other shananigans with personal data <a href="https://mailhustle.com">mailhustle.com</a> - changing the game, it's you who benefit from it. I'm open by default, radical transparency, life is a gift, to live is an art - manifesting highest vibration and long-lasting meaningful positive impact.</p>
         </span>
 
       </div>
@@ -177,7 +178,7 @@
 
      <script src="app.js"></script>
 
-     <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script>
+     <!-- <script>document.write('<script src="http://' + (location.host || 'localhost').split(':')[0] + ':35729/livereload.js?snipver=1"></' + 'script>')</script> -->
 
   </body>
 </html>

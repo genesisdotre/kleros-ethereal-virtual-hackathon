@@ -30,10 +30,12 @@ contract Auction {
   modifier onlyWinner { require(winner == msg.sender, "only winner"); _; }
   modifier ended { require(now > timestampEnd, "not ended yet"); _; }
 
+
   function setDescription(string _description) public onlyOwner() {
     description = _description;
   }
 
+  // TODO: Override this method in the derived functions, think about on-chain / off-chain communication mechanism
   function setInstructions(string _instructions) public ended() onlyWinner()  {
     instructions = _instructions;
   }
