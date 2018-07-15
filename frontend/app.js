@@ -49,7 +49,7 @@ app.controller('ctrl', function($scope, $q) {
 
         console.log(res2);
 
-        if(res2[3] === "0x0000000000000000000000000000000000000000") return; // HEAD and TAIL shenanigans again
+        if(res2[3] === "0x0000000000000000000000000000000000000000") return; // dropping witdrawn / HEAD / TAIL bids
 
         var account = {
           address: res2[3],
@@ -59,6 +59,23 @@ app.controller('ctrl', function($scope, $q) {
         $scope.accounts.push(account);  
         $scope.$apply(); // TODO: promises, $apply only once towards the end
 
+      });
+    }
+  });  
+
+  $scope.contract.getGuaranteedContributorsLenght(function(err, res) {
+    lenght = res.toNumber()
+    for (i=0; i<lenght; i++) {
+      $scope.contract.guaranteedContributors(i, function(err2, res2) {
+        $scope.contract.guaranteedContributions(res2, function(err3, res3) {
+
+          var guaranteed = {
+            address: res2,
+            bid: +web3.fromWei(res3.toNumber()) // BigNumber to Number to Ether to digits...
+          }
+          $scope.guranteedBids.push(guaranteed);
+          $scope.$apply();
+        })
       });
     }
   });
@@ -81,23 +98,6 @@ app.controller('ctrl', function($scope, $q) {
     $scope.$apply();
   });  
 
-  let guranteedBidEvent = $scope.contract.GuaranteedBid({}, {fromBlock: 0, toBlock: 'latest'})
-  guranteedBidEvent.get(function(error, events) {
-
-    console.log(events);
-
-    events.forEach(function(event) {
-      var bid = {
-        bidder: event.args.addr,
-        price: +web3.fromWei( event.args.value.toNumber() ),
-        timestamp: event.args.timestamp.toNumber(),
-        tx: event.transactionHash
-      }
-      $scope.guranteedBids.push(bid);
-    });
-
-    $scope.$apply();
-  });  
 
   let refundEvent = $scope.contract.Refund({}, {fromBlock: 0, toBlock: 'latest'})
   refundEvent.get(function(error, events) {
