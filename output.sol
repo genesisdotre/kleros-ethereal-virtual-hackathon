@@ -16,6 +16,7 @@ contract Auction {
   address public winner;
   mapping(address => uint) public bids;
   address[] public accountsList; // so we can iterate: https://ethereum.stackexchange.com/questions/13167/are-there-well-solved-and-simple-storage-patterns-for-solidity
+  function getAccountListLenght() public constant returns(uint) { return accountsList.length; } // lenght is not accessible from DApp, exposing convenience method: https://stackoverflow.com/questions/43016011/getting-the-length-of-public-array-variable-getter
 
   // THINK: should be (an optional) constructor parameter?
   // For now if you want to change - simply modify the code
@@ -24,8 +25,7 @@ contract Auction {
   
 
   event BidEvent(address indexed bidder, uint indexed price, uint indexed timestamp); // cannot have event and struct with the same name
-  // event Refund(address indexed sender, uint indexed amount, uint indexed timestamp);
-  event Refund(address addr, uint value, uint timestamp);
+  event Refund(address indexed addr, uint indexed value, uint indexed timestamp);
 
   
   modifier onlyOwner { require(owner == msg.sender, "only owner"); _; }
@@ -81,7 +81,7 @@ contract Auction {
     initialPrice = false;
     price = bids[msg.sender];
     winner = msg.sender;
-    emit BidEvent(winner, price, now);
+    emit BidEvent(winner, msg.value, now); // THINK: I prefer sharing the value of the current transaction, the total value can be retrieved from the array
   }
 
   function finalize() public ended() onlyOwner() {
@@ -123,11 +123,9 @@ contract AuctionMultiple is Auction {
   uint public constant LIMIT = 2000; // due to gas restrictions we limit the number of participants in the auction (no Burning Man tickets yet)
   uint public constant HEAD = 120000000 * 1e18; // uint(-1); // really big number
   uint public constant TAIL = 0;
-  uint public lastBidID = 0;
-  
+  uint public lastBidID = 0;  
   uint public howMany; // number of items to sell, for isntance 40k tickets to a concert
-  uint private TEMP = 0; // need to use it when creating new struct
- 
+
   struct Bid {
     uint prev;            // bidID of the previous element.
     uint next;            // bidID of the next element.
@@ -135,8 +133,8 @@ contract AuctionMultiple is Auction {
     address contributor;  // The contributor who placed the bid.
   }    
 
-  mapping (uint => Bid) public bids; // Map bidID to bid
-  mapping (address => uint) public contributors; 
+  mapping (uint => Bid) public bids; // map bidID to actual Bid structure
+  mapping (address => uint) public contributors; // map address to bidID
   
   event LogNumber(uint number);
   event LogText(string text);
@@ -192,6 +190,7 @@ contract AuctionMultiple is Auction {
       insertionBidId = searchInsertionPoint(msg.value, TAIL);
 
       contributors[msg.sender] = lastBidID;
+      accountsList.push(msg.sender);
 
       bids[lastBidID] = Bid({
         prev: insertionBidId,
@@ -219,6 +218,7 @@ contract AuctionMultiple is Auction {
 
     delete bids[ bidId ]; // clearning storage
     delete contributors[ msg.sender ]; // clearning storage
+    // cannot delete from accountsList - cannot shrink an array in place without spending shitloads of gas
 
     addr.transfer(thisBid.value);
     emit Refund(addr, thisBid.value, now);
@@ -282,16 +282,18 @@ contract AuctionMultiple is Auction {
 // File: contracts/AuctionMultipleGuaranteed.sol
 
 // 100000000000000000, "membership in Casa Crypto", 1546300799, "0x8855Ef4b740Fc23D822dC8e1cb44782e52c07e87", 20, 5, 5000000000000000000
+// 100000000000000000, "membership in Casa Crypto", 1546300799, "0x85A363699C6864248a6FfCA66e4a1A5cCf9f5567", 20, 5, 5000000000000000000
 
 // For instance: effering limited "Early Bird" tickets that are guaranteed
 contract AuctionMultipleGuaranteed is AuctionMultiple {
 
-  uint public howManyGuaranteed; // after guaranteed slots are used, we decrease the number of slots available
+  uint public howManyGuaranteed; // after guaranteed slots are used, we decrease the number of slots available (in the parent contract)
   uint public priceGuaranteed;
   address[] public guaranteedContributors; // cannot iterate mapping, keeping addresses in an array
-  mapping (address => uint) public guaranteedContributions; 
+  mapping (address => uint) public guaranteedContributions;
+  function getGuaranteedContributorsLenght() public constant returns(uint) { return guaranteedContributors.length; } // lenght is not accessible from DApp, exposing convenience method: https://stackoverflow.com/questions/43016011/getting-the-length-of-public-array-variable-getter
 
-  event GuaranteedBid(address addr, uint value);
+  event GuaranteedBid(address addr, uint value, uint timestamp);
   
   constructor(uint _price, string _description, uint _timestampEnd, address _beneficiary, uint _howMany, uint _howManyGuaranteed, uint _priceGuaranteed) AuctionMultiple(_price, _description, _timestampEnd, _beneficiary, _howMany) public {
     require(_howMany >= _howManyGuaranteed, "The number of guaranteed items should be less or equal than total items. If equal = fixed price sell, kind of OK with me");
@@ -310,7 +312,7 @@ contract AuctionMultipleGuaranteed is AuctionMultiple {
       guaranteedContributions[msg.sender] = msg.value;
       howManyGuaranteed--;
       howMany--;
-      emit GuaranteedBid(msg.sender, msg.value);
+      emit GuaranteedBid(msg.sender, msg.value, now);
     } else {
       super.bid(); // https://ethereum.stackexchange.com/questions/25046/inheritance-and-function-overwriting-who-can-call-the-parent-function
     }

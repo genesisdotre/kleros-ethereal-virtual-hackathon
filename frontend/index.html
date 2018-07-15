@@ -13,7 +13,12 @@
     <script src="./lib/jquery.min.js"></script>
     <script src="./lib/angular.min.js"></script>
 
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.js"></script>
+    <!-- 
+      this may seem redundant, as Web3 can be injected by MetaMask BUT in case of no MetaMask no simple way including it, see also:
+        * https://stackoverflow.com/questions/8085111/how-to-include-a-remote-javascript-file-conditionally
+        * https://stackoverflow.com/questions/14783046/using-getscript-synchronously
+    -->
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
 
 
   </head>
@@ -22,11 +27,9 @@
 
       <div ng-app="app" ng-controller="ctrl">
 
-
-        <h3>Your account: {{ myAccount }}</h3>
-        <h3>Network: <span id="network"></span></h3>
-        <h3>Auction: <span id="desription"></span></h3>
-        <h3>Time to end: <span id="timestampEnd"></span></h3>
+        <h3>Address: {{ address }}</h3>
+        <h3>Auction: {{ description }}</h3>
+        <h3>Time to end: {{ timestampEnd }}</h3>
 
         <table>
           <tr>
@@ -34,7 +37,7 @@
           </tr>
           <tr ng-repeat="account in accounts| orderBy:'bid':true">
             <td>{{ account.address }}</td>
-            <td>{{ account.bid }}</td>
+            <td>{{ account.bid.toFixed(2) }}</td>
           </tr>
         </table>        
 
@@ -48,12 +51,49 @@
             </tr>
             <tr ng-repeat="bid in bids">
               <td>{{ bid.bidder }}</td>
-              <td>{{ bid.price }}</td>
+              <td>{{ bid.price.toFixed(2) }}</td>
+              <td>{{ bid.timestamp }}</td>
+              <td><a href="https://ropsten.etherscan.io/tx/{{ bid.tx }}">{{ bid.tx }}</a></td>
+              <td><a href="https://ropsten.etherscan.io/block/{{ bid.block }}">{{ bid.block }}</a></td>
+            </tr>
+          </table>          
+
+
+          <h3>Guaranteed bids</h3>
+          <table>
+            <tr>
+              <th>account</th><th>bid</th><th>timestamp</th><th>tx</th><th>block</th>
+            </tr>
+            <tr ng-repeat="bid in guranteedBids">
+              <td>{{ bid.bidder }}</td>
+              <td>{{ bid.price.toFixed(2) }}</td>
+              <td>{{ bid.timestamp }}</td>
+              <td><a href="https://ropsten.etherscan.io/tx/{{ bid.tx }}">{{ bid.tx }}</a></td>
+              <td><a href="https://ropsten.etherscan.io/block/{{ bid.block }}">{{ bid.block }}</a></td>
+            </tr>
+          </table>          
+
+
+          <h3>Refunds</h3>
+          <table>
+            <tr>
+              <th>account</th><th>bid</th><th>timestamp</th><th>tx</th><th>block</th>
+            </tr>
+            <tr ng-repeat="bid in refunds">
+              <td>{{ bid.bidder }}</td>
+              <td>{{ bid.price.toFixed(2) }}</td>
               <td>{{ bid.timestamp }}</td>
               <td><a href="https://ropsten.etherscan.io/tx/{{ bid.tx }}">{{ bid.tx }}</a></td>
               <td><a href="https://ropsten.etherscan.io/block/{{ bid.block }}">{{ bid.block }}</a></td>
             </tr>
           </table>
+
+
+
+
+
+
+
         </span>
 
 

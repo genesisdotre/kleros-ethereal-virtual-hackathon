@@ -3,7 +3,7 @@ pragma solidity ^0.4.23;
 import "./AuctionMultiple.sol";
 
 // 100000000000000000, "membership in Casa Crypto", 1546300799, "0x8855Ef4b740Fc23D822dC8e1cb44782e52c07e87", 20, 5, 5000000000000000000
-// 100000000000000000, "membership in Casa Crypto", 1546300799, "0x85A363699C6864248a6FfCA66e4a1A5cCf9f5567", 20, 5, 5000000000000000000
+// 100000000000000000, "membership in Casa Crypto", 1546300799, "0x85A363699C6864248a6FfCA66e4a1A5cCf9f5567", 2, 1, 5000000000000000000
 
 // For instance: effering limited "Early Bird" tickets that are guaranteed
 contract AuctionMultipleGuaranteed is AuctionMultiple {
@@ -14,7 +14,7 @@ contract AuctionMultipleGuaranteed is AuctionMultiple {
   mapping (address => uint) public guaranteedContributions;
   function getGuaranteedContributorsLenght() public constant returns(uint) { return guaranteedContributors.length; } // lenght is not accessible from DApp, exposing convenience method: https://stackoverflow.com/questions/43016011/getting-the-length-of-public-array-variable-getter
 
-  event GuaranteedBid(address addr, uint value, uint timestamp);
+  event GuaranteedBid(address indexed bidder, uint value, uint timestamp);
   
   constructor(uint _price, string _description, uint _timestampEnd, address _beneficiary, uint _howMany, uint _howManyGuaranteed, uint _priceGuaranteed) AuctionMultiple(_price, _description, _timestampEnd, _beneficiary, _howMany) public {
     require(_howMany >= _howManyGuaranteed, "The number of guaranteed items should be less or equal than total items. If equal = fixed price sell, kind of OK with me");
