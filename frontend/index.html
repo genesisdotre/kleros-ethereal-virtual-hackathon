@@ -45,9 +45,13 @@
 
       <div class="container">
 
-        <div class="warning">
-          Bitcoin, Cryptocurrencies, Ethereum, Smart Contracts are all in the   early days of adoption.
-          <br><br>
+        <div class="warning" style="position: relative;" ng-show="warningShown">
+          <a href ng-click="warningShown = false" style="position: absolute; right: 10px; top: 10px;">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAy5pVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDMwMiwgMjAxNy8wMy8wMi0xNjo1OTozOCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIEVsZW1lbnRzIDE2LjAgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6MjUxNURGRDY4MDQwMTFFOEJFMzJFRkY4RERGRUE0QjciIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MjUxNURGRDc4MDQwMTFFOEJFMzJFRkY4RERGRUE0QjciPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpFQ0NCRjNGRjdGODQxMUU4QkUzMkVGRjhEREZFQTRCNyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpFQ0NCRjQwMDdGODQxMUU4QkUzMkVGRjhEREZFQTRCNyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Prbh32MAAAMwSURBVHjatJdBaBNBFIa3RdSDBtM0paQkqESMYAxRkGouQgVBaAs99FBCpVjSkKSXlqRNIaUUizRKBQ9FL4KgF2/iURFEQQRBD6IXJWIsSTRpTCSFJk2eb5ZdmW52dmdNfPDlsPve/G8ms2/mdQj8dgA5j1xA3MgR5BDSgZSQb8gH5AXyCikKbbLDSBL5jgAnP5F15EQrwp1IHKkYEFZSRW4g+42K25FnLQgreWtkNVzI5zaKy+SQc3riDuSLHGQymcDj8YDVajUsaDabxdiuri76eR45xRLfgzyVnQcGBiCVSgGxQqEAgUCAW3xkZAQ2NjbE2Gw2C6Ojo/T7d4hJLYGY7GSxWCCdToPSYrGYrvjExAQ0Go1dceVyGZxOJ+13Syl+FCnIDv39/cCySCTCFCczrdVqqnHDw8O0bw05Sydwkx7I4XBAsVhkJhGNRlVnvrOzo+pPnnu9XmXMQ1mc/B9flQOSmWrZzMzMX1+/39+07LStrKyordgvadMLl1hLOj8/r5nE9PQ0jI2NMZed2NramtaeuUISuKa1qWZnZ5mDE+Ht7W3m+9XVVb1Ne48k8FhvZ2sl0YI44bUgfZfQziSSySRvzUgJ0g9XwOTkpK74wsKCkYr5o9PICbW1tdUWH8rIXUJ4z5Pt1NQU1Ot1rr8gkUjwrgD5/IUneo7BYNDwJuRM4g1J4Pq/zpxUOFb140ziPkngMsuBFBoti8fj4impVQWXl5e1ErhKEjCr3fdIbdeyxcXFXaukl6iK+G/pYivabfplX18f5PN5Q7MKh8NM/2q1Cm63WxnziP4cjkuHg+5xPDc3p3kXYO2XoaEh2reO+JTfZEJ26OnpgUwm0zTI0tKS7s4OhUJNcVgbwOVy0X7rakVhH/JSdhocHIRcLicOUKlUdh2/eoyPj8Pm5qYYWyqVxJWh3n9ELKzKdIzekN3d3eDz+cButxu+lPb29oqxNpuNfl5W3oTUzIuk/8O1nLRqF3lrtFM6KtslTpb9tNHuaK9UJastCDeQu8jBVnpE0lLdkZoKXmHSLT9AznAdh5xmkVpzwknEJrXsgtTAktbrk9SeP0cyPIP+EWAAVXjbz6miuFkAAAAASUVORK5CYII=">  
+          </a>
+
+          <span style="padding-right: 36px; display: block;">Bitcoin, Cryptocurrencies, Ethereum, Smart Contracts are all in the early days of adoption.</span>
+          <br>
           This is an experimental software and while every effort was made to ensure it works "just fine", there might be some rought edges.
           <br><br>
           Get the code on <a href="https://github.com/genesisdotre/ethereum-auction">GitHub</a>, 
@@ -57,7 +61,7 @@
           <br><br>
           Currently it is deployed to testnet <i>(Ropsten)</i> where you can play with test ETH <i>(monopoly money)</i>.
           <br><br>
-          The same contract at the same address is deployed to the mainnet <i>(real ETH, real money)</i> - reducing the risk of loss.
+          The same contract at the same address is deployed to the mainnet <i>(real ETH, real money)</i> - safety measures in place, you are in good hands 😎
         </div>
 
         <span ng-show="$root.ropsten">
@@ -67,7 +71,8 @@
           
           <h4>Summary of the auction:</h4>
 
-          <strong>Auction ends:</strong> {{ timestampEnd | amFromUnix | amDateFormat:'dddd, MMMM Do YYYY, h:mm:ss a'}}<br>
+          <strong>Deployed to <a href="https://https://ropsten.etherscan.io/address/{{ address }}#code">Ropsten</a> (testnet)</strong><br>
+          <strong>Auction ends:</strong> {{ timestampEnd | amFromUnix | amDateFormat:'ddd, MMM Do YYYY, h:mm:ss a'}}<br>
           <strong>How many memberships auctioned:</strong> {{ howMany }}<br>
           <strong>How many guaranteed left:</strong> {{ howManyGuaranteed }}<br>
           <strong>Guaranteed memberships sold:</strong> {{ guaranteedSold }}<br>
@@ -111,8 +116,8 @@
 
           <span ng-show="$root.metamask">
 
-            <h4>All the transactions</h4>
-            <p>Includes multiple bids from the same account and refunds (withdrawn)</p> 
+            <h4>All the incoming transactions</h4>
+            <p style="margin-bottom: 0">Includes multiple bids from the same account and bids already refunded (withdrawn)</p> 
             <table class="table table-sm table-bordered">
               <tr>
                 <th class="index"></th>
