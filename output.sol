@@ -214,6 +214,15 @@ contract AuctionMultiple is Auction {
     uint position = getPosition(addr);
     require(position > howMany, "only the non-winning bids can be withdrawn");
 
+    uint refundValue = bids[ bidId ].value;
+    _removeBid(bidId);
+
+    addr.transfer(refundValue);
+    emit Refund(addr, refundValue, now);
+  }
+
+  // Separate function as it is used by derived contracts too
+  function _removeBid(uint bidId) internal {
     Bid memory thisBid = bids[ bidId ];
     bids[ thisBid.prev ].next = thisBid.next;
     bids[ thisBid.next ].prev = thisBid.prev;
@@ -221,9 +230,6 @@ contract AuctionMultiple is Auction {
     delete bids[ bidId ]; // clearning storage
     delete contributors[ msg.sender ]; // clearning storage
     // cannot delete from accountsList - cannot shrink an array in place without spending shitloads of gas
-
-    addr.transfer(thisBid.value);
-    emit Refund(addr, thisBid.value, now);
   }
 
   function finalize() public ended() onlyOwner() {
@@ -284,7 +290,8 @@ contract AuctionMultiple is Auction {
 // File: contracts/AuctionMultipleGuaranteed.sol
 
 // 100000000000000000, "membership in Casa Crypto", 1546300799, "0x8855Ef4b740Fc23D822dC8e1cb44782e52c07e87", 20, 5, 5000000000000000000
-// 100000000000000000, "membership in Casa Crypto", 1546300799, "0x85A363699C6864248a6FfCA66e4a1A5cCf9f5567", 2, 1, 5000000000000000000
+
+// 100000000000000000, "Ethereum coding workshop 24th August 2018", 1538351999, "0x09b25F7627A8d509E5FaC01cB7692fdBc26A2663", 12, 3, 5000000000000000000
 
 // For instance: effering limited "Early Bird" tickets that are guaranteed
 contract AuctionMultipleGuaranteed is AuctionMultiple {
@@ -309,15 +316,28 @@ contract AuctionMultipleGuaranteed is AuctionMultiple {
     require(now < timestampEnd, "cannot bid after the auction ends");
     require(guaranteedContributions[msg.sender] == 0, "already a guranteed contributor, cannot more than once");
 
-    if (msg.value >= priceGuaranteed && howManyGuaranteed > 0) {
-      guaranteedContributors.push(msg.sender);
-      guaranteedContributions[msg.sender] = msg.value;
-      howManyGuaranteed--;
-      howMany--;
-      emit GuaranteedBid(msg.sender, msg.value, now);
+    uint myBidId = contributors[msg.sender];
+    if (myBidId > 0) {
+      uint newTotalValue = bids[myBidId].value + msg.value;
+      if (newTotalValue >= priceGuaranteed && howManyGuaranteed > 0) {
+        _removeBid(myBidId);
+        _guarantedBid(newTotalValue);
+      } else {
+        super.bid(); // regular bid (sum is smaller than guranteed or guranteed already used)
+      }
+    } else if (msg.value >= priceGuaranteed && howManyGuaranteed > 0) {
+      _guarantedBid(msg.value);
     } else {
-      super.bid(); // https://ethereum.stackexchange.com/questions/25046/inheritance-and-function-overwriting-who-can-call-the-parent-function
+       super.bid(); // regular bid (completely new one)
     }
+  }
+
+  function _guarantedBid(uint value) private {
+    guaranteedContributors.push(msg.sender);
+    guaranteedContributions[msg.sender] = value;
+    howManyGuaranteed--;
+    howMany--;
+    emit GuaranteedBid(msg.sender, value, now);
   }
 
   function finalize() public ended() onlyOwner() {
