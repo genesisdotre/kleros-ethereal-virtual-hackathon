@@ -33,10 +33,9 @@ https://en.wikiquote.org/wiki/Donald_Knuth#Computer_Programming_as_an_Art_(1974)
 > Programmers waste enormous amounts of time thinking about, or worrying about, the speed of noncritical parts of their programs, and these attempts at efficiency actually have a strong negative impact when debugging and maintenance are considered. We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. Yet we should not pass up our opportunities in that critical 3%.
 
 ### Front-end Dapp
-* Not yet.
-* Send ETH directly.
-* To refund - send `0 ether` transaction.
-* To view state of the contract - use Etherscan.
+* https://genesis.re/casacrypto
+* Currently read-only functionality
+* Constructor parameters: `100000000000000000, "membership in Casa Crypto", 1538351999, "0x09b25F7627A8d509E5FaC01cB7692fdBc26A2663", 5, 2, 1000000000000000000`
 
 ### Tests
 * Aiming for 100% coverage.
@@ -53,7 +52,6 @@ https://en.wikiquote.org/wiki/Donald_Knuth#Computer_Programming_as_an_Art_(1974)
 * With single item auction, outbidding towards the end makes sense to increase time. Does it make sense with multiple items?
 * How winners communicate with the owner about shipping address? Currently setting instructions on-chain. Signing message with the private key (complicated) or off-chain communication possible too.
 * So many fields when reading contract on Etherscan (inheritance surely can be simplified)
-* Someone can reach GuaranteedBid level in many steps. Currently only "in one go" supported
 
 ### Security audits
 * Please don't [hack](https://ethernaut.zeppelin.solutions/).

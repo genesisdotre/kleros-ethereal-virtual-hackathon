@@ -96,10 +96,9 @@ contract('AuctionMultipleGuaranteed', function (accounts) {
     var howMany = await auction.howMany.call()
     assert.equal(howManyGuaranteed, 0, "no more guaranteed left");
     assert.equal(howMany, 2, "two regular remaining");
-
   });
 
-it('Should correctly finalize the thing', async function() {
+  it('Should correctly finalize the thing', async function() {
     await auction.sendTransaction({ value: guaranteed, from: bidderA });
     await auction.sendTransaction({ value: guaranteed + 1e18, from: bidderB });
     await auction.sendTransaction({ value: guaranteed, from: bidderC });
@@ -111,8 +110,71 @@ it('Should correctly finalize the thing', async function() {
     await auction.finalize({ from: owner });
     var balanceAfter = await web3.eth.getBalance(beneficiary).toNumber();
     assert.closeTo(balanceBefore + (guaranteed * 4) + 1e18, balanceAfter, 0.01 * 1e18, "finalized amount is not correct");    
-
   });
 
+  it('Should convert a regular bid into a guaranted bid', async function() {
+    await auction.sendTransaction({ value: contribution1, from: bidderA });
+    await auction.sendTransaction({ value: contribution1, from: bidderB });
+    await auction.sendTransaction({ value: contribution1, from: bidderC }); // two guys with the same contribution, later will win
+
+    await auction.sendTransaction({ value: contribution1, from: bidderA }); // contribution1 + contribution1 = guaranteed now
+
+    var newBid1 = await auction.bids.call(newBidId1);
+    assert.equal(newBid1[0].toNumber(), 0);
+    assert.equal(newBid1[1].toNumber(), 0);
+    assert.equal(newBid1[2].toNumber(), 0);    
+
+    var newBid2 = await auction.bids.call(newBidId2);
+    assert.equal(newBid2[0].toNumber(), tailBidId);
+    assert.equal(newBid2[1].toNumber(), newBidId3);
+    assert.equal(newBid2[2].toNumber(), contribution1);    
+
+    var newBid3 = await auction.bids.call(newBidId3);
+    assert.equal(newBid3[0].toNumber(), newBidId2);
+    assert.equal(newBid3[1].toNumber(), headBidId);
+    assert.equal(newBid3[2].toNumber(), contribution1);
+
+    var headBid = await auction.bids.call(headBidId);
+    assert.equal(headBid[0].toNumber(), newBidId3);
+    assert.equal(headBid[1].toNumber(), tailBidId);
+
+    var tailBid = await auction.bids.call(tailBidId);
+    assert.equal(tailBid[0].toNumber(), headBidId);
+    assert.equal(tailBid[1].toNumber(), newBidId2);
+
+    // should update other counters as well
+    var howManyGuaranteed = await auction.howManyGuaranteed.call()
+    var howMany = await auction.howMany.call()
+    assert.equal(howManyGuaranteed, 2, "two more guaranteed left, intially there were three");
+    assert.equal(howMany, 4, "four regular remaining");
+  });
+
+  it('Should NOT convert a regular bid into a guaranted bid, when guaranteed are out of luck', async function() {
+    await auction.sendTransaction({ value: guaranteed, from: bidderB });
+    await auction.sendTransaction({ value: contribution1, from: bidderA });
+    await auction.sendTransaction({ value: guaranteed, from: bidderC });
+    await auction.sendTransaction({ value: guaranteed, from: bidderD });
+
+    await auction.sendTransaction({ value: contribution1, from: bidderA }); // contribution1 + contribution1 = guaranteed now but out of luck
+
+    var newBid1 = await auction.bids.call(newBidId1);
+    assert.equal(newBid1[0].toNumber(), tailBidId);
+    assert.equal(newBid1[1].toNumber(), headBidId);
+    assert.equal(newBid1[2].toNumber(), contribution1 + contribution1);    
+
+    var headBid = await auction.bids.call(headBidId);
+    assert.equal(headBid[0].toNumber(), newBidId1);
+    assert.equal(headBid[1].toNumber(), tailBidId);
+
+    var tailBid = await auction.bids.call(tailBidId);
+    assert.equal(tailBid[0].toNumber(), headBidId);
+    assert.equal(tailBid[1].toNumber(), newBidId1);
+
+    // should update other counters as well
+    var howManyGuaranteed = await auction.howManyGuaranteed.call()
+    var howMany = await auction.howMany.call()
+    assert.equal(howManyGuaranteed, 0, "zero guaranteed left");
+    assert.equal(howMany, 2, "two regular remaining");
+  });
 
 });

@@ -29,15 +29,29 @@ contract AuctionMultipleGuaranteed is AuctionMultiple {
     require(now < timestampEnd, "cannot bid after the auction ends");
     require(guaranteedContributions[msg.sender] == 0, "already a guranteed contributor, cannot more than once");
 
-    if (msg.value >= priceGuaranteed && howManyGuaranteed > 0) {
-      guaranteedContributors.push(msg.sender);
-      guaranteedContributions[msg.sender] = msg.value;
-      howManyGuaranteed--;
-      howMany--;
-      emit GuaranteedBid(msg.sender, msg.value, now);
+    // Handling the case when we were not guaranteed and now we are adding extra money so we are guaranteed after all
+    uint myBidId = contributors[msg.sender];
+    if (myBidId > 0) {
+      uint newTotalValue = bids[myBidId].value + msg.value;
+      if (newTotalValue >= priceGuaranteed && howManyGuaranteed > 0) {
+        _removeBid(myBidId);
+        _guarantedBid(newTotalValue);
+      } else {
+        super.bid(); // regular bid (sum is smaller than guranteed or guranteed already used)
+      }
+    } else if (msg.value >= priceGuaranteed && howManyGuaranteed > 0) {
+      _guarantedBid(msg.value);
     } else {
-      super.bid(); // https://ethereum.stackexchange.com/questions/25046/inheritance-and-function-overwriting-who-can-call-the-parent-function
+       super.bid(); // regular bid (completely new one)
     }
+  }
+
+  function _guarantedBid(uint value) private {
+    guaranteedContributors.push(msg.sender);
+    guaranteedContributions[msg.sender] = value;
+    howManyGuaranteed--;
+    howMany--;
+    emit GuaranteedBid(msg.sender, value, now);
   }
 
   function finalize() public ended() onlyOwner() {

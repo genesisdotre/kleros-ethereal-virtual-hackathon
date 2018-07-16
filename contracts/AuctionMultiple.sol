@@ -99,6 +99,15 @@ contract AuctionMultiple is Auction {
     uint position = getPosition(addr);
     require(position > howMany, "only the non-winning bids can be withdrawn");
 
+    uint refundValue = bids[ bidId ].value;
+    _removeBid(bidId);
+
+    addr.transfer(refundValue);
+    emit Refund(addr, refundValue, now);
+  }
+
+  // Separate function as it is used by derived contracts too
+  function _removeBid(uint bidId) internal {
     Bid memory thisBid = bids[ bidId ];
     bids[ thisBid.prev ].next = thisBid.next;
     bids[ thisBid.next ].prev = thisBid.prev;
@@ -106,9 +115,6 @@ contract AuctionMultiple is Auction {
     delete bids[ bidId ]; // clearning storage
     delete contributors[ msg.sender ]; // clearning storage
     // cannot delete from accountsList - cannot shrink an array in place without spending shitloads of gas
-
-    addr.transfer(thisBid.value);
-    emit Refund(addr, thisBid.value, now);
   }
 
   function finalize() public ended() onlyOwner() {
