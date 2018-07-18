@@ -4,6 +4,7 @@ import "./Auction.sol";
 
 // 1, "something", 1539659548, "0xca35b7d915458ef540ade6068dfe2f44e8fa733c", 3
 // 1, "something", 1539659548, "0x315f80C7cAaCBE7Fb1c14E65A634db89A33A9637", 3
+// dummy commit, testing SSH on a new machine
 
 contract AuctionMultiple is Auction {
 
