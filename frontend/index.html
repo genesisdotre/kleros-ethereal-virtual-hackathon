@@ -22,6 +22,7 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/css/bootstrap.min.css" integrity="sha384-Smlep5jCw/wG7hdkwQ/Z5nLIefveQRIY9nfy6xoR1uRYBtpZgI6339F5dgvm/e9B" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> 
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script> 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-moment/1.2.0/angular-moment.min.js"></script>
@@ -32,7 +33,10 @@
         * https://stackoverflow.com/questions/8085111/how-to-include-a-remote-javascript-file-conditionally
         * https://stackoverflow.com/questions/14783046/using-getscript-synchronously
     -->
-    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@0.20.6/dist/web3.min.js"></script>
+
+    <link rel='shortcut icon' href='favicon.ico' type='image/x-icon' /> <!-- required for MetaMask https://ethereum.stackexchange.com/questions/64979/how-do-you-set-an-icon-for-metamask-dapp-connect-popup-prompt -->
 
 
   </head>
@@ -59,14 +63,14 @@
           The same contract at the same address is deployed to the mainnet <i>(real ETH, real money)</i> - safety measures in place, you are in good hands 😎
         </div>
 
-        <span ng-show="$root.ropsten">
+        <span>
           <h3>{{ description }}</h3>
 
           <h3><input readonly="" class="address" value="{{ address }}"></h3>
           
           <h4>Summary of the auction:</h4>
 
-          <strong>Deployed to <a href="https://https://ropsten.etherscan.io/address/{{ address }}#code">Ropsten</a> (testnet)</strong><br>
+          <strong>Deployed to <a href="https://ropsten.etherscan.io/address/{{ address }}#code">Ropsten</a> (testnet)</strong><br>
           <strong>Auction ends:</strong> {{ timestampEnd | amFromUnix | amDateFormat:'ddd, MMM Do YYYY, h:mm:ss a'}}<br>
           <strong>Starting price:</strong> {{ price.toFixed(2) }} ETH<br>
           <strong>How many initially for sale:</strong> {{ howMany + howManyGuaranteed }}<br>
@@ -157,10 +161,10 @@
             <img src="images/metamask.jpg">
           </span>
         </span>
-        <span ng-show="! $root.ropsten">
+        <!-- <span ng-show="! $root.ropsten">
           <h1 style="font-family: monospace; font-weight: bold; border: 5px solid black; padding: 10px; margin-top: .5rem; margin-bottom: 20px;">please switch to the Ropsten testnet</h1>
           <img src="images/metamask.jpg" style="border: 5px solid gray; width: 100%; max-width: 100%;">
-        </span>
+        </span> -->
 
         <span style="font-size: 0.75em">
           <br>
