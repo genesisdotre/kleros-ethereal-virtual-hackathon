@@ -12,7 +12,7 @@ contract AuctionMultipleGuaranteed is AuctionMultiple {
   uint public priceGuaranteed;
   address[] public guaranteedContributors; // cannot iterate mapping, keeping addresses in an array
   mapping (address => uint) public guaranteedContributions;
-  function getGuaranteedContributorsLenght() public constant returns(uint) { return guaranteedContributors.length; } // lenght is not accessible from DApp, exposing convenience method: https://stackoverflow.com/questions/43016011/getting-the-length-of-public-array-variable-getter
+  function getGuaranteedContributorsLenght() public view returns(uint) { return guaranteedContributors.length; } // lenght is not accessible from DApp, exposing convenience method: https://stackoverflow.com/questions/43016011/getting-the-length-of-public-array-variable-getter
 
   event GuaranteedBid(address indexed bidder, uint value, uint timestamp);
   

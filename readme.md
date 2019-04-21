@@ -1,3 +1,12 @@
+Since Solidity `0.5.0` there are some changes.
+
+You'll need to:
+* `npm install`
+* `npm run test`
+
+This is required so that the locally installed Truffle version is used.
+
+
 # 1. Simple auction
 [Auction.sol](https://github.com/genesisdotre/ethereum-auction/blob/master/contracts/Auction.sol)
 
