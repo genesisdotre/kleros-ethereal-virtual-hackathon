@@ -1,5 +1,4 @@
 pragma solidity ^0.5.2;
-pragma experimental ABIEncoderV2; // returning structs: https://ethereum.stackexchange.com/questions/7317/how-can-i-return-struct-when-function-is-called
 
 import "./Ownable.sol";
 
@@ -62,7 +61,7 @@ contract SelfCommitment is Ownable {
 		return id;
 	}
 
-	function addSubmission(string memory _url, string memory _comment, uint challengeID) public returns (uint) {
+	function createSubmission(string memory _url, string memory _comment, uint challengeID) public returns (uint) {
 		require(challenges[challengeID].user == msg.sender); // only the guy who sets the challenge can add new stuff
 
 		Submission memory submission = Submission({url : _url, comment: _comment, timestamp: now, state: SubmissionState.initial });
@@ -75,14 +74,15 @@ contract SelfCommitment is Ownable {
 
 	}
 
-	// function getChallengeById(uint256 challengeId) public view returns(address user, string memory description, uint deposit) {
-	// 	Challenge memory c = challenges[challengeId];
-	// 	return (c.user, c.description, c.deposit);
-	// }
 
-	function getChallengeById(uint256 challengeId) public view returns(Challenge memory) {
-		return challenges[challengeId];
+	function getChallengeById(uint256 challengeID) public view returns(address, uint, string memory, uint, uint, uint, ChallengeState) {
+		Challenge memory c =  challenges[challengeID];
+		return(c.user, c.deposit, c.description, c.beginning, c.end, c.count, c.state);
 	}
-
+	
+	function getSubmissionById(uint256 submissionID) public view returns(string memory, string memory, uint, SubmissionState) {
+		Submission memory s =  submissions[submissionID];
+		return(s.url, s.comment, s.timestamp, s.state);
+	}
 
 }

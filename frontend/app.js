@@ -1,14 +1,26 @@
 var app = angular.module('app', ['angularMoment'])
 
-app.run(function($rootScope) {
-  $rootScope.address = "0xe75142aa2a7ca74dad04ebcc3c9608f0f28bfdcd"; // https://ropsten.etherscan.io/address/0x2328bc22d5705b2cde99e02a780e2fecdca4ad6b
+app.run(async function($rootScope) {
+  $rootScope.address = "0x9f345d7855959bf07f64f175918fe6a6180766d2";
   
-  $rootScope.ABI = 
-  [
+  $rootScope.ABI = [
     {
-      "constant": true,
-      "inputs": [],
-      "name": "timestampEnd",
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_url",
+          "type": "string"
+        },
+        {
+          "name": "_comment",
+          "type": "string"
+        },
+        {
+          "name": "challengeID",
+          "type": "uint256"
+        }
+      ],
+      "name": "addSubmission",
       "outputs": [
         {
           "name": "",
@@ -16,133 +28,327 @@ app.run(function($rootScope) {
         }
       ],
       "payable": false,
-      "stateMutability": "view",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
       "constant": false,
-      "inputs": [],
-      "name": "bid",
-      "outputs": [],
+      "inputs": [
+        {
+          "name": "_description",
+          "type": "string"
+        },
+        {
+          "name": "_beginning",
+          "type": "uint256"
+        },
+        {
+          "name": "_end",
+          "type": "uint256"
+        },
+        {
+          "name": "_count",
+          "type": "uint256"
+        }
+      ],
+      "name": "createChallenge",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
       "payable": true,
       "stateMutability": "payable",
       "type": "function"
     },
     {
+      "constant": false,
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "creator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "deposit",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "beginning",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "end",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "count",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ChallengeAdd",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "creator",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "challengeID",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "comment",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "SubmissionAdd",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "chalengeSubmissionIDs",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "challenges",
+      "outputs": [
+        {
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "name": "deposit",
+          "type": "uint256"
+        },
+        {
+          "name": "description",
+          "type": "string"
+        },
+        {
+          "name": "beginning",
+          "type": "uint256"
+        },
+        {
+          "name": "end",
+          "type": "uint256"
+        },
+        {
+          "name": "count",
+          "type": "uint256"
+        },
+        {
+          "name": "state",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "challengeID",
+          "type": "uint256"
+        }
+      ],
+      "name": "getChallengeById",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "submissionID",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSubmissionById",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "string"
+        },
+        {
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "user",
+          "type": "address"
+        }
+      ],
+      "name": "getUserChallengeIDs",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "constant": true,
       "inputs": [],
-      "name": "initialPrice",
+      "name": "isOwner",
       "outputs": [
         {
           "name": "",
           "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "instructions",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "beneficiary",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [],
-      "name": "finalize",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "addr",
-          "type": "address"
-        }
-      ],
-      "name": "refundOnBehalf",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [],
-      "name": "refund",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "bids",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "increaseTimeIfBidBeforeEnd",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "description",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
         }
       ],
       "payable": false,
@@ -164,76 +370,6 @@ app.run(function($rootScope) {
       "type": "function"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_description",
-          "type": "string"
-        }
-      ],
-      "name": "setDescription",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "price",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "finalized",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "getAccountListLenght",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "increaseTimeBy",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "constant": true,
       "inputs": [
         {
@@ -241,118 +377,64 @@ app.run(function($rootScope) {
           "type": "uint256"
         }
       ],
-      "name": "accountsList",
+      "name": "submissions",
       "outputs": [
         {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "winner",
-      "outputs": [
-        {
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_instructions",
-          "type": "string"
-        }
-      ],
-      "name": "setInstructions",
-      "outputs": [],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "name": "_price",
-          "type": "uint256"
-        },
-        {
-          "name": "_description",
+          "name": "url",
           "type": "string"
         },
         {
-          "name": "_timestampEnd",
-          "type": "uint256"
+          "name": "comment",
+          "type": "string"
         },
         {
-          "name": "_beneficiary",
-          "type": "address"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "fallback"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "name": "bidder",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "name": "value",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
           "name": "timestamp",
           "type": "uint256"
+        },
+        {
+          "name": "state",
+          "type": "uint8"
         }
       ],
-      "name": "BidEvent",
-      "type": "event"
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
     },
     {
-      "anonymous": false,
+      "constant": true,
       "inputs": [
         {
-          "indexed": true,
-          "name": "bidder",
+          "name": "",
           "type": "address"
         },
         {
-          "indexed": false,
-          "name": "value",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "name": "timestamp",
+          "name": "",
           "type": "uint256"
         }
       ],
-      "name": "Refund",
-      "type": "event"
+      "name": "userChallengeIDs",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
     }
   ]
+
+
+  try {
+    accounts = await ethereum.enable();
+  } catch (error) {
+    console.log(error);
+  }
+
+  provider = new ethers.providers.Web3Provider(web3.currentProvider);
+
+  contract = new ethers.Contract($rootScope.address, $rootScope.ABI, provider);
 
 
   if (typeof web3 !== 'undefined') {
@@ -361,43 +443,40 @@ app.run(function($rootScope) {
     // web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/hi8olE2lF8OqjyBSdtSm "));
   }
 
-  // web3.version.getNetwork((err, network) => {
-  //   if(network === "3") {
-  //     $rootScope.ropsten = true;
-  //   } else {
-  //     $rootScope.ropsten = false;
-  //   }
-  // });
+  web3.version.getNetwork((err, network) => {
+    console.log("getNetwork == " + network);
+  });
 
   $rootScope.metamask = web3.currentProvider.isMetaMask;
   $rootScope.contract = web3.eth.contract($rootScope.ABI).at($rootScope.address);
 });
 
 app.controller('ctrl', function($scope, $q) {
+  $scope.message = "ANGULAR LOADED";
   $scope.warningShown = true;
 	$scope.accounts = [];
   $scope.bids = [];
   // $scope.guranteedBids = [];
 	// $scope.refunds = [];
 
-  $scope.contract.description.call(function(err, res) {
-    $scope.description = res;
-    $scope.$apply();
-  });  
+  // $scope.contract.description.call(function(err, res) {
+  //   $scope.description = res;
+  //   $scope.$apply();
+  // });  
 
-  $scope.contract.timestampEnd.call(function(err, res) {
-    $scope.timestampEnd = res.toNumber();
-    $scope.$apply();
-  });  
+  // $scope.contract.timestampEnd.call(function(err, res) {
+  //   $scope.timestampEnd = res.toNumber();
+  //   $scope.$apply();
+  // });  
 
   // $scope.contract.howManyGuaranteed.call(function(err, res) {
   //   $scope.howManyGuaranteed = res.toNumber();
   // });    
 
-  $scope.contract.price.call(function(err, res) {
-    $scope.price = +web3.fromWei( res.toNumber() );
-    $scope.$apply();
-  });    
+  // $scope.contract.price.call(function(err, res) {
+  //   $scope.price = +web3.fromWei( res.toNumber() );
+  //   $scope.$apply();
+  // });    
 
   // $scope.contract.priceGuaranteed.call(function(err, res) {
   //   $scope.priceGuaranteed = +web3.fromWei( res.toNumber() );
