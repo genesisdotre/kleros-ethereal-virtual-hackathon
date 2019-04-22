@@ -1,36 +1,9 @@
 var app = angular.module('app', ['angularMoment'])
 
 app.run(async function($rootScope) {
-  $rootScope.address = "0x9f345d7855959bf07f64f175918fe6a6180766d2";
+  $rootScope.address = "0xee532dc8ad07daae711048d8cffb7deb58be9e09";
   
   $rootScope.ABI = [
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "_url",
-          "type": "string"
-        },
-        {
-          "name": "_comment",
-          "type": "string"
-        },
-        {
-          "name": "challengeID",
-          "type": "uint256"
-        }
-      ],
-      "name": "addSubmission",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
     {
       "constant": false,
       "inputs": [
@@ -60,6 +33,33 @@ app.run(async function($rootScope) {
       ],
       "payable": true,
       "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_url",
+          "type": "string"
+        },
+        {
+          "name": "_comment",
+          "type": "string"
+        },
+        {
+          "name": "challengeID",
+          "type": "uint256"
+        }
+      ],
+      "name": "createSubmission",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -293,6 +293,20 @@ app.run(async function($rootScope) {
     },
     {
       "constant": true,
+      "inputs": [],
+      "name": "getChallengesCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
       "inputs": [
         {
           "name": "submissionID",
@@ -316,6 +330,20 @@ app.run(async function($rootScope) {
         {
           "name": "",
           "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getSubmissionsCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -424,8 +452,6 @@ app.run(async function($rootScope) {
       "type": "function"
     }
   ]
-
-
   try {
     accounts = await ethereum.enable();
   } catch (error) {

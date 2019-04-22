@@ -37,12 +37,20 @@ contract SelfCommitment is Ownable {
 
 	Challenge[] public challenges;
 	Submission[] public submissions;
-
+	
+	function getChallengesCount() public view returns(uint) { return challenges.length; }
+	function getSubmissionsCount() public view returns(uint) { return submissions.length; }
+	
 	mapping (address => uint[]) public userChallengeIDs;
 	mapping (uint => uint[]) public chalengeSubmissionIDs;
 	
 	function getUserChallengeIDs(address user) public view returns(uint[] memory) {
 	    uint[] memory IDs = userChallengeIDs[user];
+	    return IDs;
+	}
+	
+	function getChallengeSubmissionIDs(uint challengeID) public view returns(uint[] memory) {
+	    uint[] memory IDs = chalengeSubmissionIDs[challengeID];
 	    return IDs;
 	}
 
