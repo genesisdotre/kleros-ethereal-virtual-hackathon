@@ -1,4 +1,4 @@
-var app = angular.module('app', ['angularMoment'])
+var app = angular.module('app', ['angularMoment', 'ngRoute'])
 
 class Challenge {
   constructor(user, deposit, description, beginning, end, count, state) {
@@ -11,6 +11,30 @@ class Challenge {
     this.state = state;
   }
 }
+
+let ChallengeState = { 0: "initial", 1: "inprogress", 2: "success", 3: "failed" };
+let SubmissionState = { 0: "initial", 1: "voting", 2: "accepted", 3: "rejected" };
+
+app.filter('challenge', function() {
+  return function(input) { return ChallengeState[input] };
+});
+
+app.filter('submission', function() {
+  return function(input) { return SubmissionState[input] };
+});
+
+app.config(function ($routeProvider) {
+  $routeProvider
+    .when('/home', {
+      templateUrl: 'partials/home.html',
+      controller: "HomeCtrl"
+    })
+    .when('/challenge/:id', {
+      templateUrl: 'partials/challenge.html',
+      controller: "ChallengeCtrl"
+    })
+    .otherwise('/home')
+});
 
 app.run(async function($rootScope) {
   $rootScope.address = "0xee532dc8ad07daae711048d8cffb7deb58be9e09";
@@ -481,7 +505,7 @@ app.run(async function($rootScope) {
 
 });
 
-app.controller('ctrl', async function($scope, $q) {
+app.controller('HomeCtrl', function($scope, $q) {
   $scope.message = "WORK STARTED";
   $scope.challenges = [];
 
@@ -503,7 +527,7 @@ app.controller('ctrl', async function($scope, $q) {
 
         // console.log( r[0], r[1].toNumber(), r[2], r[3].toNumber(), r[4].toNumber(), r[5].toNumber(), r[6] );
 
-        $scope.challenges.push(new Challenge(r[0], ethers.utils.formatEther(r[1]), r[2], r[3].toNumber(), r[4].toNumber(), r[5].toNumber(), r[6] ))
+        $scope.challenges.push(new Challenge(r[0], parseFloat(ethers.utils.formatEther(r[1])).toFixed(3), r[2], r[3].toNumber(), r[4].toNumber(), r[5].toNumber(), r[6] ))
       })
       // $scope.$apply();
     })
@@ -651,5 +675,13 @@ app.controller('ctrl', async function($scope, $q) {
   // BidEvent.watch(function(error, result){
   //  console.log(error, result);
   // });
+
+});
+
+
+app.controller('ChallengeCtrl', function($scope, $routeParams) {
+  console.log($routeParams);
+  $scope.id = $routeParams.id;
+
 
 });
