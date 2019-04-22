@@ -11,7 +11,7 @@ Have the same mnemonic each time, to preserve settings in MetaMask:
 * Detecting cancelled transactions.
 * Disabling the button as the transaction is mining.
 * Display link to the transaction on Etherscan
-### Tests
 
+### Tests
 YES. There will be. I love testing.
 

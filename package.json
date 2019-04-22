@@ -1,7 +1,7 @@
 {
-  "name": "ethereum-auction",
-  "version": "0.1.0",
-  "description": "Auction with some variations",
+  "name": "kleros-ethereal",
+  "version": "0.0.1",
+  "description": "Kleros Ethereal hackathon project",
   "license": "MIT",
   "private": false,
   "scripts": {
@@ -9,10 +9,5 @@
     "test:truffle": "truffle test",
     "test": "run-p test:*",
     "build": "truffle compile --all"
-  },
-  "devDependencies": {
-    "ganache-cli": "^6.3.0",
-    "npm-run-all": "^4.1.3",
-    "truffle": "^4.1.13"
   }
 }
