@@ -16,3 +16,24 @@
         <td><a href onclick="alert('Kleros magic happen please')"><i class="fas fa-exclamation-triangle"></i></a></td>
     </tr>
 </table>
+
+<h4>Submit new evidence</h4>
+
+<div class="container">
+
+    <form ng-submit="newEvidence()">
+
+        <div class="form-group">
+            <label for="url">URL</label>
+            <input type="text" class="form-control" id="url" aria-describedby="URLHelp" placeholder="https://" ng-model="form.url">
+            <small id="URLHelp" class="form-text text-muted">Link to the thing you'll be judged, it better stays online.</small>
+        </div>
+        <div class="form-group">
+            <label for="description">description</label>
+            <input type="text" class="form-control" id="description" placeholder="Here is the link to what I did..." ng-model="form.description">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+
+    </form>
+</div>

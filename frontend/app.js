@@ -577,6 +577,11 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
   $scope.id = $routeParams.id;
   $scope.submissions = [];
 
+  $scope.form = {
+    url: "https://www.youtube.com/watch?v=yQjHSIHPJfw",
+    description: "20 minutes meditation Today",
+  };
+
   setTimeout(async function() { // HACK HACK HACK
     let submissions = await contract.getChallengeSubmissionIDs($scope.id);
     submissions = submissions.map(s => s.toNumber()); // these do not have consecutive numbers
@@ -594,6 +599,11 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
     })
 
   }, 1000); // HACK HACK HACK
+
+
+  $scope.newEvidence = async function() {
+    await contract.createSubmission($scope.form.url, $scope.form.description, $scope.id);
+  }
 
 
 });
