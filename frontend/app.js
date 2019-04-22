@@ -1,5 +1,17 @@
 var app = angular.module('app', ['angularMoment'])
 
+class Challenge {
+  constructor(user, deposit, description, beginning, end, count, state) {
+    this.user = user;
+    this.deposit = deposit;
+    this.description = description;
+    this.beginning = beginning;
+    this.end = end;
+    this.count = count; 
+    this.state = state;
+  }
+}
+
 app.run(async function($rootScope) {
   $rootScope.address = "0xee532dc8ad07daae711048d8cffb7deb58be9e09";
   
@@ -452,6 +464,7 @@ app.run(async function($rootScope) {
       "type": "function"
     }
   ]
+  
   try {
     accounts = await ethereum.enable();
   } catch (error) {
@@ -460,28 +473,54 @@ app.run(async function($rootScope) {
 
   provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
-  contract = new ethers.Contract($rootScope.address, $rootScope.ABI, provider);
+  console.log(await provider.getNetwork());
 
+  signer = provider.getSigner();
 
-  if (typeof web3 !== 'undefined') {
-    web3 = new Web3(web3.currentProvider);
-  } else {
-    // web3 = new Web3(new Web3.providers.HttpProvider("https://ropsten.infura.io/hi8olE2lF8OqjyBSdtSm "));
-  }
+  contract = new ethers.Contract($rootScope.address, $rootScope.ABI, signer);
 
-  web3.version.getNetwork((err, network) => {
-    console.log("getNetwork == " + network);
-  });
-
-  $rootScope.metamask = web3.currentProvider.isMetaMask;
-  $rootScope.contract = web3.eth.contract($rootScope.ABI).at($rootScope.address);
 });
 
-app.controller('ctrl', function($scope, $q) {
+app.controller('ctrl', async function($scope, $q) {
   $scope.message = "ANGULAR LOADED";
-  $scope.warningShown = true;
-	$scope.accounts = [];
-  $scope.bids = [];
+  $scope.challenges = [];
+
+  setTimeout(async function() {
+
+    let temp = await contract.getChallengesCount();
+
+    let challengesCount = temp.toNumber()
+  
+    let arrayOfPromises = [];
+  
+    for (let i=0; i<challengesCount; i++) {
+      arrayOfPromises.push(contract.getChallengeById(i));
+    }
+  
+    $q.all(arrayOfPromises).then(function(results) {
+      console.log(results);
+      results.forEach((r) => {
+
+        // console.log( r[0], r[1].toNumber(), r[2], r[3].toNumber(), r[4].toNumber(), r[5].toNumber(), r[6] );
+
+        $scope.challenges.push(new Challenge(r[0], ethers.utils.formatEther(r[1]), r[2], r[3].toNumber(), r[4].toNumber(), r[5].toNumber(), r[6] ))
+      })
+      // $scope.$apply();
+    })
+
+  }, 1000); // HACK HACK HACK
+
+
+
+
+
+
+
+
+
+  // $scope.warningShown = true;
+	// $scope.accounts = [];
+  // $scope.bids = [];
   // $scope.guranteedBids = [];
 	// $scope.refunds = [];
 
