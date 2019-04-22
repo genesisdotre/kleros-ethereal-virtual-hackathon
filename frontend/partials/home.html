@@ -28,3 +28,37 @@
         <td><a href="#!/challenge/{{ $index }}">view all</a></td>
     </tr>
 </table>
+
+<h4>Create a new challenge</h4>
+
+<div class="container">
+
+    <form ng-submit="newChallenge()">
+
+        <div class="form-group">
+            <label for="deposit">Deposit in ETH</label>
+            <input type="text" class="form-control" id="deposit" aria-describedby="depositHelp" placeholder="0.01" ng-model="form.deposit">
+            <small id="depositHelp" class="form-text text-muted">Refunded if successful.</small>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" class="form-control" id="description" placeholder="What do you want to accompllish?" ng-model="form.description">
+        </div>
+        <div class="form-group">
+            <label for="start">Start time:</label>
+            <input type="date" lass="form-control" id="start" ng-model="form.start">
+        </div>
+        <div class="form-group">
+            <label for="end">End time:</label>
+            <input type="date" lass="form-control" id="end" ng-model="form.end">
+        </div>
+        <div class="form-group">
+            <label for="howMany">How many times?</label>
+            <input type="text" lass="form-control" id="howMany" aria-describedby="howManyHelp" placeholder="5" ng-model="form.howMany">
+            <small id="howManyHelp" class="form-text text-muted">You will need to submit evidence that many times.</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+
+    </form>
+</div>

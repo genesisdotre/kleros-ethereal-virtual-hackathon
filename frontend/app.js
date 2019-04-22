@@ -538,6 +538,14 @@ app.controller('HomeCtrl', function($scope, $q) {
   $scope.message = "WORK STARTED";
   $scope.challenges = [];
 
+  $scope.form = {
+    deposit: "0.01",
+    description: "20 pushups daily",
+    start: new Date(),
+    end: new Date( +new Date() + 30*24*60*60*1000), // 30 days from now
+    howMany: 30
+  };
+
   setTimeout(async function() { // HACK HACK HACK
     let temp = await contract.getChallengesCount();
     let challengesCount = temp.toNumber()
@@ -555,6 +563,12 @@ app.controller('HomeCtrl', function($scope, $q) {
     })
 
   }, 1000); // HACK HACK HACK
+
+
+  $scope.newChallenge = async function() {
+    await contract.createChallenge($scope.form.description,  Math.floor(+$scope.form.start / 1000), Math.floor(+$scope.form.end / 1000), 
+                                  $scope.form.howMany, { value: ethers.utils.parseEther($scope.form.deposit)});
+  }
 
 });
 
