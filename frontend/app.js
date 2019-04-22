@@ -12,6 +12,15 @@ class Challenge {
   }
 }
 
+class Submission {
+  constructor(url, comment, timestamp, state) {
+    this.url = url;
+    this.comment = comment;
+    this.timestamp = timestamp;
+    this.state = state;
+  }
+}
+
 let ChallengeState = { 0: "initial", 1: "inprogress", 2: "success", 3: "failed" };
 let SubmissionState = { 0: "initial", 1: "voting", 2: "accepted", 3: "rejected" };
 
@@ -37,7 +46,7 @@ app.config(function ($routeProvider) {
 });
 
 app.run(async function($rootScope) {
-  $rootScope.address = "0xee532dc8ad07daae711048d8cffb7deb58be9e09";
+  $rootScope.address = "0x95e6b7b2d4a286ea924bbdf18362ecf532d95bd7";
   
   $rootScope.ABI = [
     {
@@ -345,6 +354,25 @@ app.run(async function($rootScope) {
       "constant": true,
       "inputs": [
         {
+          "name": "challengeID",
+          "type": "uint256"
+        }
+      ],
+      "name": "getChallengeSubmissionIDs",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256[]"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
           "name": "submissionID",
           "type": "uint256"
         }
@@ -488,7 +516,8 @@ app.run(async function($rootScope) {
       "type": "function"
     }
   ]
-  
+
+
   try {
     accounts = await ethereum.enable();
   } catch (error) {
@@ -526,9 +555,31 @@ app.controller('HomeCtrl', function($scope, $q) {
     })
 
   }, 1000); // HACK HACK HACK
+
 });
 
-app.controller('ChallengeCtrl', function($scope, $routeParams) {
+app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
   console.log($routeParams);
   $scope.id = $routeParams.id;
+  $scope.submissions = [];
+
+  setTimeout(async function() { // HACK HACK HACK
+    let submissions = await contract.getChallengeSubmissionIDs($scope.id);
+    submissions = submissions.map(s => s.toNumber()); // these do not have consecutive numbers
+    let arrayOfPromises = [];
+  
+    for (let i=0; i<submissions.length; i++) {
+      arrayOfPromises.push(contract.getSubmissionById(submissions[i]));
+    }
+  
+    $q.all(arrayOfPromises).then(function(results) {
+      console.log(results);
+      results.forEach((r) => {
+        $scope.submissions.push(new Submission(r[0], r[1], r[2].toNumber(), r[3] ))
+      })
+    })
+
+  }, 1000); // HACK HACK HACK
+
+
 });

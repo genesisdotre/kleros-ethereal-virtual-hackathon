@@ -1,1 +1,18 @@
 <h1>Challenge {{ id }}</h1>
+
+<table class="table table-sm table-bordered">
+    <tr>
+        <th class="index"></th>
+        <th>URL</th>
+        <th>timestamp</th>
+        <th>state</th>
+        <th>actions</th>
+    </tr>
+    <tr ng-repeat="s in submissions">
+        <td class="index">{{ $index + 1 }}.</td>
+        <td><a href="{{ s.url }}" target="_blank">{{ s.comment}} <i class="fas fa-external-link-alt"></i></a></td>
+        <td><span am-time-ago="s.timestamp | amFromUnix"></span></td>
+        <td>{{ s.state | submission }}</td>
+        <td><a href onclick="alert('Kleros magic happen please')"><i class="fas fa-exclamation-triangle"></i></a></td>
+    </tr>
+</table>

@@ -1,3 +1,10 @@
+ganache-cli -m "____ ____ ____ ____" // have same mnemonic each time, in that way you can preserve settings in MetaMask
+
+
+
+
+
+
 Since Solidity `0.5.0` there are some changes.
 
 You'll need to:
