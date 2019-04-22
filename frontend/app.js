@@ -482,7 +482,7 @@ app.run(async function($rootScope) {
 });
 
 app.controller('ctrl', async function($scope, $q) {
-  $scope.message = "ANGULAR LOADED";
+  $scope.message = "WORK STARTED";
   $scope.challenges = [];
 
   setTimeout(async function() {
