@@ -1,3 +1,5 @@
+# Kleros Ethereal Virtual Hackathon
+
 ### Cpt Obvious tip
 
 Have the same mnemonic each time, to preserve settings in MetaMask:
