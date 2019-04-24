@@ -1,14 +1,30 @@
-pragma solidity ^0.5.2;
+pragma solidity ^0.4.24;
 
-import "./Ownable.sol";
+import "./Arbitrable.sol";
+import "./Arbitrator.sol";
 
-contract SelfCommitment is Ownable {
+contract SelfCommitment is IArbitrable {
 
-	constructor() public {
-		beneficiary = msg.sender;
+	event Log(string debugInfo); // I'm a totally new to this business, figuring things out
+    
+    modifier onlyArbitrator {require(msg.sender == address(arbitrator), "Can only be called by the arbitrator."); _;}
+    Arbitrator public arbitrator; // address of the arbitrator contract
+
+	uint8 constant AMOUNT_OF_CHOICES = 2;
+    uint8 constant OK = 1;
+    uint8 constant FAIL = 2;
+	
+	modifier onlyOwner {require(msg.sender == address(owner), "Can only be called by the owner."); _;}
+	address public owner;
+
+	constructor(Arbitrator _arbitrator) public {
+		owner = msg.sender;
+		arbitrator = _arbitrator;
 	}
 
-	address payable beneficiary;
+	function changeArbitrator(Arbitrator _arbitrator) onlyOwner public {
+		arbitrator = _arbitrator;
+	}
 
 	enum ChallengeState { initial, inprogress, success, failed }
 	enum SubmissionState { initial, voting, accepted, rejected }
@@ -29,6 +45,7 @@ contract SelfCommitment is Ownable {
 	}
 
 	struct Submission {
+		uint challengeID;
 		string url; // YouTube url or later IPFS integration (done on the front-end)
 		string comment;
 		uint timestamp;
@@ -69,18 +86,24 @@ contract SelfCommitment is Ownable {
 		return id;
 	}
 
-	function createSubmission(string memory _url, string memory _comment, uint challengeID) public returns (uint) {
-		require(challenges[challengeID].user == msg.sender); // only the guy who sets the challenge can add new stuff
+	function createSubmission(string memory _url, string memory _comment, uint _challengeID) public returns (uint) {
+		require(challenges[_challengeID].user == msg.sender); // only the guy who sets the challenge can add new stuff
 
-		Submission memory submission = Submission({url : _url, comment: _comment, timestamp: now, state: SubmissionState.initial });
+		Submission memory submission = Submission({challengeID : _challengeID, url : _url, comment: _comment, timestamp: now, state: SubmissionState.initial });
 		uint id = submissions.push(submission) - 1;
-		chalengeSubmissionIDs[challengeID].push(id);
+		chalengeSubmissionIDs[_challengeID].push(id);
 
-		emit SubmissionAdd(msg.sender, challengeID, _url, _comment, now);
+		emit SubmissionAdd(msg.sender, _challengeID, _url, _comment, now);
 
 		return id;
+	}
+
+	function disputeSubmission(uint _submissionID) public { // any internet troll can dispute submission
+		arbitrator.createDispute
 
 	}
+
+
 
 
 	function getChallengeById(uint256 challengeID) public view returns(address, uint, string memory, uint, uint, uint, ChallengeState) {
@@ -91,6 +114,23 @@ contract SelfCommitment is Ownable {
 	function getSubmissionById(uint256 submissionID) public view returns(string memory, string memory, uint, SubmissionState) {
 		Submission memory s =  submissions[submissionID];
 		return(s.url, s.comment, s.timestamp, s.state);
+	}
+
+
+	// part of IArbitrable 
+    function rule(uint _disputeID, uint _ruling) public onlyArbitrator {
+        emit Ruling(Arbitrator(msg.sender),_disputeID,_ruling);
+
+        executeRuling(_disputeID,_ruling);
+    }
+
+
+    /** @dev Execute a ruling of a dispute.
+     *  @param _disputeID ID of the dispute in the Arbitrator contract.
+     *  @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
+     */
+    function executeRuling(uint _disputeID, uint _ruling) internal {
+		emit Log("executeRuling");
 	}
 
 }
