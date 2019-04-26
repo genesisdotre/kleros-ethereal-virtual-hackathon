@@ -98,8 +98,8 @@ contract SelfCommitment is IArbitrable {
 		return id;
 	}
 
-	function disputeSubmission(uint _submissionID) public { // any internet troll can dispute submission
-		arbitrator.createDispute
+	function disputeSubmission(uint _submissionID)  public { // any internet troll can dispute submission
+		// arbitrator.createDispute.value(_arbitrationCost)(AMOUNT_OF_CHOICES, arbitratorExtraData)
 
 	}
 

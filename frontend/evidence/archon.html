@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Kleros Archon</title>
+
+    <script src="bundle.js"></script>
+    <script>
+        var archon = new Archon('https://mainnet.infura.io')
+        console.log(archon.version)
+
+        var evidenceHash = Archon.utils.multihashFile(
+          "xxxxxxxx",
+          0x1B // keccak-256
+        );
+
+        Archon.utils.validMultihash(evidenceHash, "xxxxxxxx") // true
+
+    </script>
+  </head>
+  <body>
+
+  </body>
+</html>
