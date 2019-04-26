@@ -5,7 +5,7 @@ import "./Arbitrator.sol";
 
 contract SelfCommitment is IArbitrable {
 
-	event Log(string debugInfo); // I'm a totally new to this business, figuring things out
+	event Log(string debugInfo); // I'm totally new to this business, figuring things out
     
     modifier onlyArbitrator {require(msg.sender == address(arbitrator), "Can only be called by the arbitrator."); _;}
     Arbitrator public arbitrator; // address of the arbitrator contract
@@ -46,10 +46,10 @@ contract SelfCommitment is IArbitrable {
 
 	struct Submission {
 		uint challengeID;
-		string url; // YouTube url or later IPFS integration (done on the front-end)
+		string url; // YouTube url, have IPFS integration ready: https://discuss.ipfs.io/t/is-there-any-other-methods-to-upload-a-file-files-to-ipfs-through-a-web-browser-beside-using-api-port-5001/3143/10?u=mars
 		string comment;
 		uint timestamp;
-		SubmissionState state; // KLEROS ARBITRATORS HERE KICK IN
+		SubmissionState state;
 	}	
 
 	Challenge[] public challenges;
@@ -60,6 +60,11 @@ contract SelfCommitment is IArbitrable {
 	
 	mapping (address => uint[]) public userChallengeIDs;
 	mapping (uint => uint[]) public chalengeSubmissionIDs;
+	
+	
+	mapping (uint => uint) public challengeMetaEvidence; // a challenge can have multiple diputes, all will use the same challengeMetaEvidence
+    mapping (uint => uint) public submissionDispute; // disputed Submissions link to the Dispute
+	
 	
 	function getUserChallengeIDs(address user) public view returns(uint[] memory) {
 	    uint[] memory IDs = userChallengeIDs[user];
@@ -98,14 +103,6 @@ contract SelfCommitment is IArbitrable {
 		return id;
 	}
 
-	function disputeSubmission(uint _submissionID)  public { // any internet troll can dispute submission
-		// arbitrator.createDispute.value(_arbitrationCost)(AMOUNT_OF_CHOICES, arbitratorExtraData)
-
-	}
-
-
-
-
 	function getChallengeById(uint256 challengeID) public view returns(address, uint, string memory, uint, uint, uint, ChallengeState) {
 		Challenge memory c =  challenges[challengeID];
 		return(c.user, c.deposit, c.description, c.beginning, c.end, c.count, c.state);
@@ -115,20 +112,23 @@ contract SelfCommitment is IArbitrable {
 		Submission memory s =  submissions[submissionID];
 		return(s.url, s.comment, s.timestamp, s.state);
 	}
+	
+	// A lot things will happen on the front-end
+	// Building metaEvidence.json and evidence.json and then uploading to IPFS
+	function disputeSubmission(uint _submissionID, string metaEvidence, string evidence)  public { // public: any internet troll can dispute submission
+		Log("before disputeSubmission");
+		arbitrator.createDispute.value(0)(AMOUNT_OF_CHOICES, "");
+		Log("after disputeSubmission");
+	}
 
 
-	// part of IArbitrable 
+	// @override (why Solidity do not specify @override keyword?) part of IArbitrable 
     function rule(uint _disputeID, uint _ruling) public onlyArbitrator {
         emit Ruling(Arbitrator(msg.sender),_disputeID,_ruling);
 
         executeRuling(_disputeID,_ruling);
     }
 
-
-    /** @dev Execute a ruling of a dispute.
-     *  @param _disputeID ID of the dispute in the Arbitrator contract.
-     *  @param _ruling Ruling given by the arbitrator. Note that 0 is reserved for "Not able/wanting to make a decision".
-     */
     function executeRuling(uint _disputeID, uint _ruling) internal {
 		emit Log("executeRuling");
 	}

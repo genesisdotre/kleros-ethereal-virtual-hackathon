@@ -83,6 +83,16 @@ app.controller('HomeCtrl', function($scope, $q) {
     $scope.alerts.splice(index, 1);
   };
 
+  $scope.url = "https://www.youtube.com/watch?v=R8MWKsheHxk";
+  $scope.reason = "music";
+  $scope.report = function() {
+
+    var evidenceHash = Archon.utils.multihashFile($scope.url, 0x1B /* keccak-256 */);
+    console.log(evidenceHash);
+
+  }
+
+
   $scope.form = {
     deposit: "0.01",
     description: "20 pushups daily",

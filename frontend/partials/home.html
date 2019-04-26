@@ -5,8 +5,9 @@
 <alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert>
 <button class='btn btn-default' ng-click="addAlert()">Add Alert</button>
 
-<input type="text" ng-model="why">
-<input type="submit" value="report">
+<input type="text" ng-model="url">
+<input type="text" ng-model="reason">
+<input type="submit" value="report" ng-click="report()">
 
 
 <h4>All the challenges</h4>
