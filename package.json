@@ -1,7 +1,7 @@
 {
   "name": "kleros-ethereal",
   "version": "0.0.1",
-  "description": "Kleros Ethereal hackathon project",
+  "description": "Kleros Ethereal Hackathon - Self Commitment App",
   "license": "MIT",
   "private": false,
   "scripts": {
