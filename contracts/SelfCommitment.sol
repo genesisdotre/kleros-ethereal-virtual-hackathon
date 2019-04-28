@@ -11,7 +11,6 @@ contract SelfCommitment is IArbitrable {
     Arbitrator public arbitrator; // address of the arbitrator contract
     bytes public arbitratorExtraData; // potentially Court ID)
 
-
 	uint8 constant AMOUNT_OF_CHOICES = 2;
 	uint8 constant REFUSED = 0; // arbitrator always has 
     uint8 constant OK = 1;
@@ -33,7 +32,7 @@ contract SelfCommitment is IArbitrable {
 	}
 
 	enum ChallengeState { initial, inprogress, success, failed }
-	enum SubmissionState { initial, voting, accepted, rejected }
+	enum SubmissionState { initial, challenged, accepted, rejected }
 
 	event ChallengeAdd(address creator, uint deposit, string description, uint beginning, uint end, uint count, uint timestamp);
 	event SubmissionAdd(address creator, uint challengeID, string url, string comment, uint timestamp);
@@ -61,25 +60,23 @@ contract SelfCommitment is IArbitrable {
 
 	Challenge[] public challenges;
 	Submission[] public submissions;
+	string[] public MetaEvidenceHashes;
 	
 	function getChallengesCount() public view returns(uint) { return challenges.length; }
 	function getSubmissionsCount() public view returns(uint) { return submissions.length; }
 	
-	mapping (address => uint[]) public userChallengeIDs; // user can have multiple challanges
-	mapping (uint => uint[]) public chalengeSubmissionIDs; // challenge has multiple submissions, returning the array containing all of them
-	
-	
-	mapping (uint => string) public challengeIDtoMetaEvidenceHash; // challenge has multiple submissions but only one MetaEvidence (that describes challenge)
-    mapping (uint => uint) public disputeIDtoSubmissionID; 
-	
-	
+	mapping (address => uint[]) public userToChallengeIDs; // user can have multiple challanges
+	mapping (uint => uint[]) public chalengeIDToSubmissionIDs; // challenge has multiple submissions, returning the array containing all of them
+	mapping (uint => uint) public disputeIDToSubmissionID; // dispute refers to particular submission, not the whole challenge
+	mapping (uint => string) public challengeIDToMetaEvidenceHash; // challenge has multiple submissions but only one MetaEvidence (that describes challenge)
+    
 	function getUserChallengeIDs(address user) public view returns(uint[] memory) {
-	    uint[] memory IDs = userChallengeIDs[user];
+	    uint[] memory IDs = userToChallengeIDs[user];
 	    return IDs;
 	}
 	
 	function getChallengeSubmissionIDs(uint challengeID) public view returns(uint[] memory) {
-	    uint[] memory IDs = chalengeSubmissionIDs[challengeID];
+	    uint[] memory IDs = chalengeIDToSubmissionIDs[challengeID];
 	    return IDs;
 	}
 
@@ -91,7 +88,7 @@ contract SelfCommitment is IArbitrable {
 
 		Challenge memory challenge = Challenge({user: msg.sender, deposit: msg.value, description: _description, beginning: _beginning, end: _end, count: _count, state: ChallengeState.initial});
 		uint id = challenges.push(challenge) - 1; // push returns the lenghts of the array https://ethereum.stackexchange.com/questions/40312/what-is-the-return-of-array-push-in-solidity
-		userChallengeIDs[msg.sender].push(id);
+		userToChallengeIDs[msg.sender].push(id);
 
 		emit ChallengeAdd(msg.sender, msg.value, _description, _beginning, _end, _count, now);
 
@@ -103,7 +100,7 @@ contract SelfCommitment is IArbitrable {
 
 		Submission memory submission = Submission({challengeID : _challengeID, url : _url, comment: _comment, timestamp: now, disputeID: MAX_INT, state: SubmissionState.initial });
 		uint id = submissions.push(submission) - 1;
-		chalengeSubmissionIDs[_challengeID].push(id);
+		chalengeIDToSubmissionIDs[_challengeID].push(id);
 
 		emit SubmissionAdd(msg.sender, _challengeID, _url, _comment, now);
 
@@ -123,7 +120,8 @@ contract SelfCommitment is IArbitrable {
 	// A lot things will happen on the front-end
 	// Building metaEvidence.json and evidence.json and then uploading to IPFS
 	// Here we are only submitting IPFS paths to preserve on-chain storage
-	function disputeSubmission(uint _submissionID, string metaEvidence, string evidence)  public { // public: any internet troll can dispute submission
+	// We could use any "traditional" centralized storage, that's why using ipfs:// URI qualifier
+	function disputeSubmission(uint _submissionID, string _metaEvidenceURI, string _evidenceURI)  public { // public: any internet troll can dispute submission
 	    emit Log("before disputeSubmission");
 		uint disputeID = arbitrator.createDispute.value(0)(AMOUNT_OF_CHOICES, ""); // "" means no extraData
 		Submission storage s = submissions[_submissionID];
@@ -142,7 +140,7 @@ contract SelfCommitment is IArbitrable {
     }
 
     function executeRuling(uint _disputeID, uint _ruling) internal {
-        Submission storage s = submissions[ disputeIDtoSubmissionID[_disputeID] ];
+        Submission storage s = submissions[ disputeIDToSubmissionID[_disputeID] ];
         if (_ruling == OK) {
             s.state = SubmissionState.accepted;
         } else if (_ruling == FAIL || _ruling == REFUSED) {
