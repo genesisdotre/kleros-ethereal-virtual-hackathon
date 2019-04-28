@@ -3,6 +3,7 @@
 <table class="table table-sm table-bordered">
     <tr>
         <th class="index"></th>
+        <th class="index">ID</th>
         <th>URL</th>
         <th>timestamp</th>
         <th>state</th>
@@ -10,6 +11,7 @@
     </tr>
     <tr ng-repeat="s in submissions">
         <td class="index">{{ $index + 1 }}.</td>
+        <td class="index">{{ s.ID }}</td>
         <td><a href="{{ s.url }}" target="_blank">{{ s.comment}} <i class="fas fa-external-link-alt"></i></a></td>
         <td><span am-time-ago="s.timestamp | amFromUnix"></span></td>
         <td>{{ s.state | submission }}</td>

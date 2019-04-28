@@ -19,7 +19,8 @@ class Challenge {
 }
 
 class Submission {
-  constructor(challengeID, url, comment, timestamp, state) {
+  constructor(ID, challengeID, url, comment, timestamp, state) {
+    this.ID = ID;
     this.challengeID = challengeID;
     this.url = url;
     this.comment = comment;
@@ -797,7 +798,7 @@ app.controller('HomeCtrl', function($scope, $q) {
 
 });
 
-app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams) {
+app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams, utils) {
   console.log($routeParams);
   $scope.id = $routeParams.id;
   $scope.submissions = [];
@@ -808,19 +809,21 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams) {
   };
 
   setTimeout(async function() { // HACK HACK HACK
-    let submissions = await contract.getChallengeSubmissionIDs($scope.id);
-    submissions = submissions.map(s => s.toNumber()); // these do not have consecutive numbers
+    let submissionIDs = await contract.getChallengeSubmissionIDs($scope.id);
+    submissionIDs = submissionIDs.map(s => s.toNumber()); // these do not have consecutive numbers
     let arrayOfPromises = [];
   
-    for (let i=0; i<submissions.length; i++) {
-      arrayOfPromises.push(contract.getSubmissionById(submissions[i]));
+    for (let i=0; i<submissionIDs.length; i++) {
+      arrayOfPromises.push(contract.getSubmissionById(submissionIDs[i]));
     }
   
     $q.all(arrayOfPromises).then(function(results) {
       console.log(results);
-      results.forEach((r) => {
-        $scope.submissions.push(new Submission(r[0], r[1], r[2], r[3].toNumber(), r[4] ))
+
+      results.forEach((r, index) => {
+        $scope.submissions.push(new Submission(submissionIDs[index], r[0], r[1], r[2], r[3].toNumber(), r[4] ))
       })
+
     })
 
   }, 1000); // HACK HACK HACK
@@ -840,15 +843,8 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams) {
     } else {
       console.log(reason);
 
-      // build evidence object, JSON it (remove whitespaces), upload to IPFS, create hash (archon), create transaction... #complicated
-      // {
-      //   "fileURI": string,
-      //   "fileHash": string,
-      //   "fileTypeExtension": string,
-      //   "name": string,
-      //   "description": string
-      // }
-      // it's the nmae of the game to comply with the standard: https://github.com/ethereum/EIPs/issues/1497#issuecomment-487121885
+      
+      // Evidence Standard: https://github.com/ethereum/EIPs/issues/1497#issuecomment-487121885
 
       let evidence = {
         fileURI: s.url,
@@ -856,24 +852,7 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams) {
         description: "Evidence submitted from the app."
       }
 
-      let evidenceString = JSON.stringify(evidence);
-
-      function str2ab(str) { // https://github.com/dy/string-to-arraybuffer/blob/804d870138371bbdde7d3b2e738f0a0f822c6d3d/index.js#L22-L28
-        var array = new Uint8Array(str.length);
-        for(var i = 0; i < str.length; i++) {
-          array[i] = str.charCodeAt(i);
-        }
-        return array.buffer
-      }
-
-      let evidenceArrayBuffer = str2ab(evidenceString);
-
-      let evidenceArrayBufferToBuffer = buffer.Buffer(evidenceArrayBuffer);
-    
-      ipfs.add(evidenceArrayBufferToBuffer, (err, result) => {
-        if (err) { console.error(err); }
-        console.log("https://gateway.ipfs.io/ipfs/" + result[0].hash,  result);
-      });
+      let evidencePromise = utils.uploadToIPFS(evidence);
 
       // MetaEvidence
       // {
@@ -900,30 +879,29 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams) {
       // }
       // All fields are optional.
 
-      let fileContent = (await $http.get("../readme.md")).data; // we are hosted on GitHub pages
+      let fileContent = (await $http.get("../readme.md")).data; // we are hosted on GitHub pages, readme is right there, no CORS issues
       var fileHash = Archon.utils.multihashFile(fileContent, 0x1B); // keccak-256
 
       let metaEvidence = {
         fileURI: "https://raw.githubusercontent.com/genesisdotre/kleros-ethereal-virtual-hackathon/master/readme.md",
         fileHash: fileHash,
-        title: "Challenge title", // TODO: retrieve it https://github.com/genesisdotre/kleros-ethereal-virtual-hackathon/issues/3
-        question: "Is this submission valid",
+        title: "TODO: Challenge title", // TODO: retrieve it https://github.com/genesisdotre/kleros-ethereal-virtual-hackathon/issues/3
+        question: "Is this submission to the challenge valid?",
         rulingOptions: {
           type: "single",
-          titles: ["yes", "no"],
-          descriptions: ["yes, submission is valid", "no, submission is not valid"]
+          titles: ["yes <img src='xss' onerror='alert(1)'>", "no"],
+          descriptions: ["Yes, submission is valid. <img src='xss' onerror='alert(1)'>", "No, submission is not valid."]
         }
       }
       
-      let metaEvidenceString = JSON.stringify(metaEvidence);
-      let metaEvidenceArrayBuffer = str2ab(metaEvidenceString);
-      let metaEvidenceArrayBufferToBuffer = buffer.Buffer(metaEvidenceArrayBuffer);
-    
-      ipfs.add(metaEvidenceArrayBufferToBuffer, (err, result) => {
-        if (err) { console.error(err); }
-        console.log("https://gateway.ipfs.io/ipfs/" + result[0].hash,  result);
-      });      
+      let metaEvidencePromise = utils.uploadToIPFS(metaEvidence);
 
+      $q.all([evidencePromise, metaEvidencePromise]).then(function(results) {
+
+        console.log(results);
+        contract.disputeSubmission(s.ID, "ipfs://" + results[0], "ipfs://" + results[1]);
+
+      });
 
     }
 
@@ -934,8 +912,30 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams) {
 app.service('utils', function($q) {
   let service = {};
 
-  service.uploadToIPFS = function(json) {
+  function str2ab(str) { // https://github.com/dy/string-to-arraybuffer/blob/804d870138371bbdde7d3b2e738f0a0f822c6d3d/index.js#L22-L28
+    var array = new Uint8Array(str.length);
+    for(var i = 0; i < str.length; i++) {
+      array[i] = str.charCodeAt(i);
+    }
+    return array.buffer
+  }
 
+  service.uploadToIPFS = function(json) {
+    let defer = $q.defer();
+
+    let toString = JSON.stringify(json);
+
+    let toArrayBuffer = str2ab(toString);
+
+    let toBuffer = buffer.Buffer(toArrayBuffer);
+  
+    ipfs.add(toBuffer, (err, result) => {
+      if (err) { console.error(err); defer.reject(err); }
+      console.log("https://gateway.ipfs.io/ipfs/" + result[0].hash,  result);
+      defer.resolve(result[0].hash);
+    });
+
+    return defer.promise;
   }
 
   return service;
