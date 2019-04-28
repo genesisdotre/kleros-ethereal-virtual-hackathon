@@ -1,4 +1,6 @@
-var app = angular.module('app', ['angularMoment', 'ngRoute', 'ui.bootstrap'])
+const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' });
+
+const app = angular.module('app', ['angularMoment', 'ngRoute', 'ui.bootstrap'])
 
 class Challenge {
   constructor(user, deposit, description, beginning, end, count, state) {
@@ -13,7 +15,8 @@ class Challenge {
 }
 
 class Submission {
-  constructor(url, comment, timestamp, state) {
+  constructor(challengeID, url, comment, timestamp, state) {
+    this.challengeID = challengeID;
     this.url = url;
     this.comment = comment;
     this.timestamp = timestamp;
@@ -46,7 +49,7 @@ app.config(function ($routeProvider) {
 });
 
 app.run(async function($rootScope) {
-  $rootScope.address = "0xe75142aa2a7ca74dad04ebcc3c9608f0f28bfdcd";
+  $rootScope.address = "0xe4939e481ec2f313f1428db8e2dc776868144ca8";
   
   $rootScope.ABI = [
     {
@@ -418,11 +421,11 @@ app.run(async function($rootScope) {
           "type": "uint256"
         }
       ],
-      "name": "challengeMetaEvidence",
+      "name": "challengeIDtoMetaEvidenceHash",
       "outputs": [
         {
           "name": "",
-          "type": "uint256"
+          "type": "string"
         }
       ],
       "payable": false,
@@ -466,6 +469,25 @@ app.run(async function($rootScope) {
         {
           "name": "state",
           "type": "uint8"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "disputeIDtoSubmissionID",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
         }
       ],
       "payable": false,
@@ -560,6 +582,10 @@ app.run(async function($rootScope) {
       "outputs": [
         {
           "name": "",
+          "type": "uint256"
+        },
+        {
+          "name": "",
           "type": "string"
         },
         {
@@ -634,25 +660,6 @@ app.run(async function($rootScope) {
           "type": "uint256"
         }
       ],
-      "name": "submissionDispute",
-      "outputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "",
-          "type": "uint256"
-        }
-      ],
       "name": "submissions",
       "outputs": [
         {
@@ -669,6 +676,10 @@ app.run(async function($rootScope) {
         },
         {
           "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "name": "disputeID",
           "type": "uint256"
         },
         {
@@ -804,7 +815,7 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
     $q.all(arrayOfPromises).then(function(results) {
       console.log(results);
       results.forEach((r) => {
-        $scope.submissions.push(new Submission(r[0], r[1], r[2].toNumber(), r[3] ))
+        $scope.submissions.push(new Submission(r[0], r[1], r[2], r[3].toNumber(), r[4] ))
       })
     })
 
@@ -815,7 +826,7 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
     await contract.createSubmission($scope.form.url, $scope.form.description, $scope.id);
   }
 
-  $scope.challengeSubmission = async function() {
+  $scope.disputeSubmission = async function(s) {
 
     var reason = prompt("What is the reason?", "Someone is wrong on the internet.");
     if (reason == null) {
@@ -824,6 +835,44 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
       alert("Need to provide a reason to ease Arbitrator work, sorry not sorry.");
     } else {
       console.log(reason);
+
+      // build evidence object, JSON it (remove whitespaces), upload to IPFS, create hash (archin lib), create transaction... #complicated
+      // {
+      //   "fileURI": string,
+      //   "fileHash": string,
+      //   "fileTypeExtension": string,
+      //   "name": string,
+      //   "description": string
+      // }
+      // it's the nmae of the game to comply with the standard: https://github.com/ethereum/EIPs/issues/1497#issuecomment-487121885
+
+      let evidence = {
+        fileURI: s.url,
+        name: reason,
+        description: "Evidence submitted from the app"
+      }
+
+      let evidenceString = JSON.stringify(evidence);
+
+      // https://github.com/dy/string-to-arraybuffer/blob/804d870138371bbdde7d3b2e738f0a0f822c6d3d/index.js#L22-L28
+      function str2ab(str) {
+        var array = new Uint8Array(str.length);
+        for(var i = 0; i < str.length; i++) {
+          array[i] = str.charCodeAt(i);
+        }
+        return array.buffer
+      }
+
+      let evidenceArrayBuffer = str2ab(evidenceString);
+
+      let evidenceArrayBufferToBuffer = buffer.Buffer( evidenceArrayBuffer );
+    
+      ipfs.add(evidenceArrayBufferToBuffer, (err, result) => {
+        console.log(err, result);
+        console.log("https://gateway.ipfs.io/ipfs/" + result[0].hash,  result[0].hash);
+      });
+
+
     }
 
   }

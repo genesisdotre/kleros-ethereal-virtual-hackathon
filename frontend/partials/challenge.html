@@ -13,13 +13,13 @@
         <td><a href="{{ s.url }}" target="_blank">{{ s.comment}} <i class="fas fa-external-link-alt"></i></a></td>
         <td><span am-time-ago="s.timestamp | amFromUnix"></span></td>
         <td>{{ s.state | submission }}</td>
-        <td><a href ng-click="challengeSubmission()"><i class="fas fa-exclamation-triangle"></i></a></td>
+        <td><a href ng-click="disputeSubmission(s)"><i class="fas fa-exclamation-triangle"></i></a></td>
     </tr>
 </table>
 
 <h4>Submit new evidence</h4>
 
-<div class="container">
+<div class="container" style="width: 100%;">
 
     <form ng-submit="newEvidence()">
 

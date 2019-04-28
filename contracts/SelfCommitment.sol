@@ -9,21 +9,27 @@ contract SelfCommitment is IArbitrable {
     
     modifier onlyArbitrator {require(msg.sender == address(arbitrator), "Can only be called by the arbitrator."); _;}
     Arbitrator public arbitrator; // address of the arbitrator contract
+    bytes public arbitratorExtraData; // potentially Court ID)
+
 
 	uint8 constant AMOUNT_OF_CHOICES = 2;
+	uint8 constant REFUSED = 0; // arbitrator always has 
     uint8 constant OK = 1;
     uint8 constant FAIL = 2;
+    uint constant MAX_INT = (2**256-2)/2; // 0 is valid disputeID, initialising with MAX_INT
 	
 	modifier onlyOwner {require(msg.sender == address(owner), "Can only be called by the owner."); _;}
 	address public owner;
 
-	constructor(Arbitrator _arbitrator) public {
+	constructor(Arbitrator _arbitrator, bytes _arbitratorExtraData) public {
 		owner = msg.sender;
 		arbitrator = _arbitrator;
+		arbitratorExtraData = _arbitratorExtraData;
 	}
 
-	function changeArbitrator(Arbitrator _arbitrator) onlyOwner public {
+	function changeArbitrator(Arbitrator _arbitrator, bytes _arbitratorExtraData) onlyOwner public {
 		arbitrator = _arbitrator;
+		arbitratorExtraData = _arbitratorExtraData;
 	}
 
 	enum ChallengeState { initial, inprogress, success, failed }
@@ -49,6 +55,7 @@ contract SelfCommitment is IArbitrable {
 		string url; // YouTube url, have IPFS integration ready: https://discuss.ipfs.io/t/is-there-any-other-methods-to-upload-a-file-files-to-ipfs-through-a-web-browser-beside-using-api-port-5001/3143/10?u=mars
 		string comment;
 		uint timestamp;
+		uint disputeID;
 		SubmissionState state;
 	}	
 
@@ -58,12 +65,12 @@ contract SelfCommitment is IArbitrable {
 	function getChallengesCount() public view returns(uint) { return challenges.length; }
 	function getSubmissionsCount() public view returns(uint) { return submissions.length; }
 	
-	mapping (address => uint[]) public userChallengeIDs;
-	mapping (uint => uint[]) public chalengeSubmissionIDs;
+	mapping (address => uint[]) public userChallengeIDs; // user can have multiple challanges
+	mapping (uint => uint[]) public chalengeSubmissionIDs; // challenge has multiple submissions, returning the array containing all of them
 	
 	
-	mapping (uint => uint) public challengeMetaEvidence; // a challenge can have multiple diputes, all will use the same challengeMetaEvidence
-    mapping (uint => uint) public submissionDispute; // disputed Submissions link to the Dispute
+	mapping (uint => string) public challengeIDtoMetaEvidenceHash; // challenge has multiple submissions but only one MetaEvidence (that describes challenge)
+    mapping (uint => uint) public disputeIDtoSubmissionID; 
 	
 	
 	function getUserChallengeIDs(address user) public view returns(uint[] memory) {
@@ -94,7 +101,7 @@ contract SelfCommitment is IArbitrable {
 	function createSubmission(string memory _url, string memory _comment, uint _challengeID) public returns (uint) {
 		require(challenges[_challengeID].user == msg.sender); // only the guy who sets the challenge can add new stuff
 
-		Submission memory submission = Submission({challengeID : _challengeID, url : _url, comment: _comment, timestamp: now, state: SubmissionState.initial });
+		Submission memory submission = Submission({challengeID : _challengeID, url : _url, comment: _comment, timestamp: now, disputeID: MAX_INT, state: SubmissionState.initial });
 		uint id = submissions.push(submission) - 1;
 		chalengeSubmissionIDs[_challengeID].push(id);
 
@@ -108,28 +115,40 @@ contract SelfCommitment is IArbitrable {
 		return(c.user, c.deposit, c.description, c.beginning, c.end, c.count, c.state);
 	}
 	
-	function getSubmissionById(uint256 submissionID) public view returns(string memory, string memory, uint, SubmissionState) {
+	function getSubmissionById(uint256 submissionID) public view returns(uint, string memory, string memory, uint, SubmissionState) {
 		Submission memory s =  submissions[submissionID];
-		return(s.url, s.comment, s.timestamp, s.state);
+		return(s.challengeID, s.url, s.comment, s.timestamp, s.state);
 	}
 	
 	// A lot things will happen on the front-end
 	// Building metaEvidence.json and evidence.json and then uploading to IPFS
+	// Here we are only submitting IPFS paths to preserve on-chain storage
 	function disputeSubmission(uint _submissionID, string metaEvidence, string evidence)  public { // public: any internet troll can dispute submission
-		Log("before disputeSubmission");
-		arbitrator.createDispute.value(0)(AMOUNT_OF_CHOICES, "");
-		Log("after disputeSubmission");
+	    emit Log("before disputeSubmission");
+		uint disputeID = arbitrator.createDispute.value(0)(AMOUNT_OF_CHOICES, ""); // "" means no extraData
+		Submission storage s = submissions[_submissionID];
+		s.disputeID = disputeID;
+		s.state = SubmissionState.voting;
+		
+		emit Log("after disputeSubmission");
 	}
 
 
 	// @override (why Solidity do not specify @override keyword?) part of IArbitrable 
     function rule(uint _disputeID, uint _ruling) public onlyArbitrator {
-        emit Ruling(Arbitrator(msg.sender),_disputeID,_ruling);
+        emit Ruling(Arbitrator(msg.sender), _disputeID, _ruling);
 
-        executeRuling(_disputeID,_ruling);
+        executeRuling(_disputeID, _ruling);
     }
 
     function executeRuling(uint _disputeID, uint _ruling) internal {
+        Submission storage s = submissions[ disputeIDtoSubmissionID[_disputeID] ];
+        if (_ruling == OK) {
+            s.state = SubmissionState.accepted;
+        } else if (_ruling == FAIL || _ruling == REFUSED) {
+            s.state = SubmissionState.rejected;
+        }
+        
 		emit Log("executeRuling");
 	}
 
