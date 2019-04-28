@@ -1,5 +1,9 @@
 const ipfs = window.IpfsHttpClient('ipfs.infura.io', '5001', { protocol: 'https' });
 
+var archon = new Archon('https://mainnet.infura.io');
+archon.setIpfsGateway('https://gateway.ipfs.io');
+console.log(archon.version, "Archon is on!");
+
 const app = angular.module('app', ['angularMoment', 'ngRoute', 'ui.bootstrap'])
 
 class Challenge {
@@ -793,7 +797,7 @@ app.controller('HomeCtrl', function($scope, $q) {
 
 });
 
-app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
+app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams) {
   console.log($routeParams);
   $scope.id = $routeParams.id;
   $scope.submissions = [];
@@ -827,8 +831,8 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
   }
 
   $scope.disputeSubmission = async function(s) {
-
     var reason = prompt("What is the reason?", "Someone is wrong on the internet.");
+
     if (reason == null) {
       console.log("prompt cancelled");
     } else if (reason === "") {
@@ -836,7 +840,7 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
     } else {
       console.log(reason);
 
-      // build evidence object, JSON it (remove whitespaces), upload to IPFS, create hash (archin lib), create transaction... #complicated
+      // build evidence object, JSON it (remove whitespaces), upload to IPFS, create hash (archon), create transaction... #complicated
       // {
       //   "fileURI": string,
       //   "fileHash": string,
@@ -849,13 +853,12 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
       let evidence = {
         fileURI: s.url,
         name: reason,
-        description: "Evidence submitted from the app"
+        description: "Evidence submitted from the app."
       }
 
       let evidenceString = JSON.stringify(evidence);
 
-      // https://github.com/dy/string-to-arraybuffer/blob/804d870138371bbdde7d3b2e738f0a0f822c6d3d/index.js#L22-L28
-      function str2ab(str) {
+      function str2ab(str) { // https://github.com/dy/string-to-arraybuffer/blob/804d870138371bbdde7d3b2e738f0a0f822c6d3d/index.js#L22-L28
         var array = new Uint8Array(str.length);
         for(var i = 0; i < str.length; i++) {
           array[i] = str.charCodeAt(i);
@@ -865,17 +868,75 @@ app.controller('ChallengeCtrl', function($scope, $q, $routeParams) {
 
       let evidenceArrayBuffer = str2ab(evidenceString);
 
-      let evidenceArrayBufferToBuffer = buffer.Buffer( evidenceArrayBuffer );
+      let evidenceArrayBufferToBuffer = buffer.Buffer(evidenceArrayBuffer);
     
       ipfs.add(evidenceArrayBufferToBuffer, (err, result) => {
-        console.log(err, result);
-        console.log("https://gateway.ipfs.io/ipfs/" + result[0].hash,  result[0].hash);
+        if (err) { console.error(err); }
+        console.log("https://gateway.ipfs.io/ipfs/" + result[0].hash,  result);
       });
+
+      // MetaEvidence
+      // {
+      //   "fileURI": string,
+      //   "fileHash": string,
+      //   “fileTypeExtension": string,
+      //   "category": string,
+      //   "title": string,
+      //   "description": string,
+      //   "aliases": {
+      //     [string]: string
+      //   },
+      //   "question": string,
+      //   "rulingOptions": {
+      //     "type": string,
+      //     "precision": number,
+      //     "titles": [],
+      //     "descriptions": []
+      //   },
+      //   "evidenceDisplayInterfaceURI": string,
+      //   "evidenceDisplayInterfaceHash": string,
+      //   "dynamicScriptURI": string,
+      //   "dynamicScriptHash: string
+      // }
+      // All fields are optional.
+
+      let fileContent = (await $http.get("../readme.md")).data; // we are hosted on GitHub pages
+      var fileHash = Archon.utils.multihashFile(fileContent, 0x1B); // keccak-256
+
+      let metaEvidence = {
+        fileURI: "https://raw.githubusercontent.com/genesisdotre/kleros-ethereal-virtual-hackathon/master/readme.md",
+        fileHash: fileHash,
+        title: "Challenge title", // TODO: retrieve it https://github.com/genesisdotre/kleros-ethereal-virtual-hackathon/issues/3
+        question: "Is this submission valid",
+        rulingOptions: {
+          type: "single",
+          titles: ["yes", "no"],
+          descriptions: ["yes, submission is valid", "no, submission is not valid"]
+        }
+      }
+      
+      let metaEvidenceString = JSON.stringify(metaEvidence);
+      let metaEvidenceArrayBuffer = str2ab(metaEvidenceString);
+      let metaEvidenceArrayBufferToBuffer = buffer.Buffer(metaEvidenceArrayBuffer);
+    
+      ipfs.add(metaEvidenceArrayBufferToBuffer, (err, result) => {
+        if (err) { console.error(err); }
+        console.log("https://gateway.ipfs.io/ipfs/" + result[0].hash,  result);
+      });      
 
 
     }
 
   }
 
-
 });
+
+app.service('utils', function($q) {
+  let service = {};
+
+  service.uploadToIPFS = function(json) {
+
+  }
+
+  return service;
+})
