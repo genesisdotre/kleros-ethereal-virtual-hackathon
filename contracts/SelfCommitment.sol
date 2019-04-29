@@ -126,7 +126,7 @@ contract SelfCommitment is IArbitrable {
 		uint disputeID = arbitrator.createDispute.value(0)(AMOUNT_OF_CHOICES, ""); // "" means no extraData
 		Submission storage s = submissions[_submissionID];
 		s.disputeID = disputeID;
-		s.state = SubmissionState.voting;
+		s.state = SubmissionState.challenged;
 		
 		emit Log("after disputeSubmission");
 	}
