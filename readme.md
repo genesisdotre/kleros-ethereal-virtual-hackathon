@@ -1,5 +1,11 @@
 # Kleros Ethereal Virtual Hackathon
 
+* The Ethereal Hackathon: https://gitcoin.co/hackathon/ethhack2019/"
+* Medium blog post announcement: https://medium.com/gitcoin/the-ethereal-hackathon-4f5dc2eb56d6
+* <a href="https://kleros.slack.com/messages/hackathon/">Kleros Slack hackathon channel</a> + <a href="https://slack.kleros.io/">invite</a></li>
+* The idea on Kleros forum: <a href="https://forum.kleros.io/t/self-commitment-in-todo-app/87
+* Gitcoin bounty: https://gitcoin.co/issue/kleros/hackathon/1/2824
+* Deployed to GitHub pages: https://genesis.re/kleros-ethereal-virtual-hackathon/frontend
 
 
 ### Self Commitment App
@@ -27,14 +33,9 @@ It may happen that jurors will reject the submission. That is OK too.
 To keep it simple - we are not doing an appeal process. It's not $1m on the line, it's a workout that you can do in 15 minutes. Just do it again and this time make sure 
 
 
-
-
-# Similar Projects
-
+### Similar Projects
 
 This time in a decentralized manner.
-
-
 
 Reminds me: https://gofuckingdoit.com/
 
@@ -45,8 +46,10 @@ Anticharity - giving money to orphanage in Africa doesn't feel as bad as neo-naz
 (especially if they have public record of donors)
 
 
+### Good things
 
-
+It works
+Uses the Arbitration and Evidence standards
 
 
 ### Development
@@ -54,6 +57,9 @@ Anticharity - giving money to orphanage in Africa doesn't feel as bad as neo-naz
 Realistically speaking - it's a hackathon project.
 
 I already have some other ideas how to use Kleros.
+
+![Alt text](kleros-simple-use-case.png?raw=true "Title")
+
 
 #### 1. No surprises here
 
@@ -72,17 +78,45 @@ If you have `Truffle` installed globally and run `truffle test` **IT WILL NOT WO
 
 If you want to run tests *(hint: you want to run tests)* you should do `npm run test` - in that way it will use locally installed `Truffle` in `node_modules`. It will compile, it will run.
 
-#### 4. Preserve credentials in MetaMask for interactions in the UI
+#### 4. Debugging unit tests
+
+1. Put `debugger` statement in JavaScript code
+
+2. `node --inspect-brk ./node_modules/truffle/build/cli.bundled.js test test/test_to_debug.js`
+
+3. `Open chrome://inspect`
+
+#### 5. Preserve credentials in MetaMask for interactions in the UI
 
 Have the same mnemonic each time, to preserve settings in MetaMask:
 * `ganache-cli -m "____ ____ ____ ____"
 
+#### 6. Increase gasLimit to 8000000
+
+Especially if you are using Remix.
 
 
-### Further Reading
+### Related (also hackathon) project
 
-* Kleros.io
-* Kleros whitepaper:
-* Kleros book:
-* ERC - Arbitrable standard
-* ERC - Evidence standard
+Until recently I never uploaded stuff to IPFS.
+
+Now it is much simpler, go figure: https://genesis.re/kleros-metaevidence-metahash/
+
+
+
+### Related links
+
+* https://kleros.io
+* [ERC792](https://github.com/ethereum/EIPs/issues/792) - Arbitrable standard
+* ERC1497 - Evidence standard
+
+
+### Consulting gigs and impactful work
+
+Effective altruism. Exponential technologies.
+
+https://genesis.re/360/cop24/
+
+https://genesis.re/wiki/#Open_letter_to_Extinction_Rebellion
+
+I live in one of the most expensive cities on this planet and I'm open to extra work.

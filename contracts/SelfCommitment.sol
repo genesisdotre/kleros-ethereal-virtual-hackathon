@@ -18,8 +18,7 @@ contract SelfCommitment is IArbitrable {
     uint constant MAX_INT = (2**256-2)/2; // 0 is valid disputeID, initialising with MAX_INT
 	
 	modifier onlyOwner {require(msg.sender == address(owner), "Can only be called by the owner."); _;}
-	address public owner; // for simplicity, owner is also a beneficiary of the funds from failed challenges
-	// Effective Altruism, Exponential Technologies
+	address public owner; // for simplicity, owner is also a beneficiary of the funds from failed challenges (Effective Altruism, Exponential Technologies)
 
 	constructor(Arbitrator _arbitrator, bytes _arbitratorExtraData) public {
 		owner = msg.sender;
@@ -82,8 +81,8 @@ contract SelfCommitment is IArbitrable {
 	}
 
 	function createChallenge(string memory _description, uint _beginning, uint _end, uint _count) payable public returns (uint) {
-		require(msg.value > 0, "You need to send a deposit"); // require a deposit, otherwise what's the point.
-		// require(_beginning > now, "Challenge cannot start in the past");
+		require(msg.value > 0, "You need to send a deposit"); // require a deposit, otherwise what's the point?
+		// require(_beginning > now, "Challenge cannot start in the past"); 
 		// require(_end > now + 1 days, "Challenge must last at least 1 day");
 		require(_count > 1, "You need to commit to do the thing at least once");
 
@@ -123,15 +122,11 @@ contract SelfCommitment is IArbitrable {
 	// Here we are only submitting IPFS paths to preserve on-chain storage
 	// We could use any "traditional" centralized storage, that's why using ipfs:// URI qualifier
 	function disputeSubmission(uint _submissionID, string _metaEvidenceURI, string _evidenceURI)  public { // public: any internet troll can dispute submission
-	    emit Log("before disputeSubmission");
 		uint disputeID = arbitrator.createDispute.value(0)(AMOUNT_OF_CHOICES, ""); // "" means no extraData
 		Submission storage s = submissions[_submissionID];
 		s.disputeID = disputeID;
 		s.state = SubmissionState.challenged;
-		
-		emit Log("after disputeSubmission");
 	}
-
 
 	// @override (why Solidity do not specify @override keyword?) part of IArbitrable 
     function rule(uint _disputeID, uint _ruling) public onlyArbitrator {
@@ -147,14 +142,11 @@ contract SelfCommitment is IArbitrable {
         } else if (_ruling == FAIL || _ruling == REFUSED) {
             s.state = SubmissionState.rejected;
         }
-        
-		emit Log("executeRuling");
 	}
 
 	// Liza Minnelli: https://www.youtube.com/watch?v=PIAXG_QcQNU
 	// Change the money, change the world: https://www.youtube.com/watch?v=laE0OzKRE-A
 	// Have you ever wondered why `InTheCurrentState` name? Because someone can still callenge an individual submission
-	// This function does check if timeout for challenging submission has expired
 	function isChallengeSuccessfulInTheCurrentState(uint _challengeID) public view returns (bool) {
 		
 		uint[] memory submissionsIDs = getChallengeSubmissionIDs(_challengeID);
