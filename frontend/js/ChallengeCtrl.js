@@ -89,8 +89,8 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams, utils)
           question: "Is this submission to the challenge valid?",
           rulingOptions: {
             type: "single",
-            titles: ["yes <img src='xss' onerror='alert(1)'>", "no"],
-            descriptions: ["Yes, submission is valid. <img src='xss' onerror='alert(1)'>", "No, submission is not valid."]
+            titles: ["yes <img src='xss' onerror='alert(1)'> 🔥🔥🔥", "no"],
+            descriptions: ["Yes, submission is valid. <img src='xss' onerror='alert(1)'> 🔥🔥🔥", "No, submission is not valid."]
           }
         }
         
