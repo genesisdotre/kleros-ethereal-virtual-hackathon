@@ -18,7 +18,8 @@ contract SelfCommitment is IArbitrable {
     uint constant MAX_INT = (2**256-2)/2; // 0 is valid disputeID, initialising with MAX_INT
 	
 	modifier onlyOwner {require(msg.sender == address(owner), "Can only be called by the owner."); _;}
-	address public owner;
+	address public owner; // for simplicity, owner is also a beneficiary of the funds from failed challenges
+	// Effective Altruism, Exponential Technologies
 
 	constructor(Arbitrator _arbitrator, bytes _arbitratorExtraData) public {
 		owner = msg.sender;
@@ -31,7 +32,7 @@ contract SelfCommitment is IArbitrable {
 		arbitratorExtraData = _arbitratorExtraData;
 	}
 
-	enum ChallengeState { initial, inprogress, success, failed }
+	enum ChallengeState { initial, inprogress, success, failed, successWithdraw, failedWithdraw }
 	enum SubmissionState { initial, challenged, accepted, rejected }
 
 	event ChallengeAdd(address creator, uint deposit, string description, uint beginning, uint end, uint count, uint timestamp);
@@ -66,7 +67,7 @@ contract SelfCommitment is IArbitrable {
 	function getSubmissionsCount() public view returns(uint) { return submissions.length; }
 	
 	mapping (address => uint[]) public userToChallengeIDs; // user can have multiple challanges
-	mapping (uint => uint[]) public chalengeIDToSubmissionIDs; // challenge has multiple submissions, returning the array containing all of them
+	mapping (uint => uint[]) public chalengeIDToSubmissionIDs; // challenge has multiple submissions, returning the array containing all of them _(OMFG: can you believe I don't even know how to properly initialize struct with the dynamic array? YES... This is my expert level here.)_
 	mapping (uint => uint) public disputeIDToSubmissionID; // dispute refers to particular submission, not the whole challenge
 	mapping (uint => string) public challengeIDToMetaEvidenceHash; // challenge has multiple submissions but only one MetaEvidence (that describes challenge)
     
@@ -148,6 +149,41 @@ contract SelfCommitment is IArbitrable {
         }
         
 		emit Log("executeRuling");
+	}
+
+	// Money money money, down to business baby 
+
+	// Liza Minnelli: https://www.youtube.com/watch?v=PIAXG_QcQNU
+	// Change the money, change the world: https://www.youtube.com/watch?v=laE0OzKRE-A
+
+	// Have you ever wondered why `InTheCurrentState` name? Because someone can still callenge an individual submission
+	// This function does check if timeout for challenging submission has expired
+	function isChallengeSuccessfulInTheCurrentState(uint _challengeID) public view returns (bool) {
+		
+		uint[] memory submissionsIDs = getChallengeSubmissionIDs(_challengeID);
+		uint count = challenges[_challengeID].count;
+		uint notInvalidSubmissions = 0;
+
+		for (uint i=0; i<submissionsIDs.length; i++) { 
+			Submission memory s = submissions[ submissionsIDs[i] ];
+			if (s.state != SubmissionState.challenged || s.state != SubmissionState.rejected) {
+				notInvalidSubmissions++;
+			}
+		}
+		return notInvalidSubmissions >= count;
+	}
+
+	function withdrawFunds(uint _challengeID) public {
+		Challenge storage c = challenges[_challengeID];
+		require (now > c.end + (3 minutes), "Withdrawals are only possible 3 ~days~ minutes after the end of the challenge (minutes not days for debugging purposes");
+
+		if(isChallengeSuccessfulInTheCurrentState(_challengeID)) {
+			c.user.transfer(c.deposit);
+			c.state = ChallengeState.successWithdraw;
+		} else {
+			owner.transfer(c.deposit);
+			c.state = ChallengeState.failedWithdraw;
+		}
 	}
 
 }

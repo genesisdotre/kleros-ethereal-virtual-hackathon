@@ -31,14 +31,9 @@ contract('SelfCommitment', async function(accounts) {
         submissionsCount = await selfCommitment.getSubmissionsCount();
         assert.equal(submissionsCount.toNumber(), 2, 'There should be exactly two submissions');
 
-        debugger;
-
-        let str = JSON.stringify(selfCommitment.chalengeIDToSubmissionIDs);
-        console.log(str);
-
-        let IDs = await selfCommitment.chalengeIDToSubmissionIDs.call(0);
-        console.log(IDs)
-
+        let submissionTwoID = await selfCommitment.chalengeIDToSubmissionIDs.call(0, 1);
+        let submissionTwo = await selfCommitment.getSubmissionById(submissionTwoID);
+        assert.equal(submissionTwo[1], "url2", "URL of submission 2 not stored correctly");
     });
   
   })

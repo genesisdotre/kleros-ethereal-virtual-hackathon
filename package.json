@@ -5,9 +5,8 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "test:ganache": "ganache-cli --gasLimit 8000000 --quiet &",
-    "test:truffle": "truffle test",
-    "test": "run-p test:*",
+    "ganache": "ganache-cli --gasLimit 8000000 ",
+    "test": "truffle test",
     "build": "truffle compile --all",
     "version": "truffle version"
   },

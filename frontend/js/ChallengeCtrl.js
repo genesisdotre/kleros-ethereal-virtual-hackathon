@@ -85,12 +85,12 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams, utils)
         let metaEvidence = {
           fileURI: "https://raw.githubusercontent.com/genesisdotre/kleros-ethereal-virtual-hackathon/master/readme.md",
           fileHash: fileHash,
-          title: "TODO: Challenge title", // TODO: retrieve it https://github.com/genesisdotre/kleros-ethereal-virtual-hackathon/issues/3
-          question: "Is this submission to the challenge valid?",
+          title: "TODO: Challenge title <img src='xss' onerror='alert(\"title\")'>", // TODO: retrieve it https://github.com/genesisdotre/kleros-ethereal-virtual-hackathon/issues/3
+          question: "Is this submission to the challenge valid <img src='xss' onerror='alert(\"question\")'>?",
           rulingOptions: {
             type: "single",
-            titles: ["yes <img src='xss' onerror='alert(1)'> 🔥🔥🔥", "no"],
-            descriptions: ["Yes, submission is valid. <img src='xss' onerror='alert(1)'> 🔥🔥🔥", "No, submission is not valid."]
+            titles: ["yes <img src='xss' onerror='alert(\"titles\")'> 🔥🔥🔥", "no"],
+            descriptions: ["Yes, submission is valid. <img src='xss' onerror='alert(\"descriptions\")'> 🔥🔥🔥", "No, submission is not valid."]
           }
         }
         

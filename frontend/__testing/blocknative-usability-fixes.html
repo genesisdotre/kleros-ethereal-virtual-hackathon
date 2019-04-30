@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <script src="https://assist.blocknative.com/0-6-0/assist.js"></script>
+
+  </head>
+  <body>
+
+
+
+  	<script type="text/javascript">
+    	
+		var bncAssistConfig = {
+		  dappId: "ef72f8d0-ca72-4571-98b1-b96e8c046c69",       // [String] The API key created by step one above
+		  networkId: 1  // [Integer] The Ethereum network ID your dapp uses.
+		};
+
+		var assistInstance = assist.init(bncAssistConfig);
+
+		assistInstance.onboard()
+		  .then(function(success) {
+		    // User has been successfully onboarded and is ready to transact
+		    // This means we can be sure of the follwing user properties:
+		    //  - They are using a compatible browser
+		    //  - They have a web3-enabled wallet installed
+		    //  - The wallet is connected to the config-specified networkId
+		    //  - The wallet is unlocked and contains at least `minimumBalance` in wei
+		    //  - They have connected their wallet to the dapp, congruent with EIP1102
+		  })
+		  .catch(function(error) {
+		    // The user exited onboarding before completion
+		    // Will let you know which stage of onboarding the user reached when they exited
+		    console.log(error.message);
+		  })
+
+    </script>
+  
+  </body>
+</html>
