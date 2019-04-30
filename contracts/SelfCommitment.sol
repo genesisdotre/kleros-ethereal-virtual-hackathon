@@ -151,11 +151,8 @@ contract SelfCommitment is IArbitrable {
 		emit Log("executeRuling");
 	}
 
-	// Money money money, down to business baby 
-
 	// Liza Minnelli: https://www.youtube.com/watch?v=PIAXG_QcQNU
 	// Change the money, change the world: https://www.youtube.com/watch?v=laE0OzKRE-A
-
 	// Have you ever wondered why `InTheCurrentState` name? Because someone can still callenge an individual submission
 	// This function does check if timeout for challenging submission has expired
 	function isChallengeSuccessfulInTheCurrentState(uint _challengeID) public view returns (bool) {
@@ -166,7 +163,7 @@ contract SelfCommitment is IArbitrable {
 
 		for (uint i=0; i<submissionsIDs.length; i++) { 
 			Submission memory s = submissions[ submissionsIDs[i] ];
-			if (s.state != SubmissionState.challenged || s.state != SubmissionState.rejected) {
+			if (s.state != SubmissionState.challenged && s.state != SubmissionState.rejected) {
 				notInvalidSubmissions++;
 			}
 		}

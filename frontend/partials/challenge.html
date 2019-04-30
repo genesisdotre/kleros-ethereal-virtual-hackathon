@@ -1,13 +1,15 @@
-<h1><a href="#"><i class="fas fa-home"></i></a></li> &nbsp;&nbsp;&nbsp; Challenge: &quot;{{ c.description }}&quot;</h1>
+<h1><a href="#"><i class="fas fa-home"></i></a></li> <i>&nbsp; Challenge: &quot;{{ c.description }}&quot;</i></h1>
 
-<p>user: <strong>{{ c.user }}</strong></p>
-<p>deposit: <strong>{{ c.deposit }}</strong></p>
-<p>beginning: <strong><span am-time-ago="c.beginning | amFromUnix"></span></strong></p>
-<p>end: <strong><span am-time-ago="c.end | amFromUnix"></span></strong></p>
-<p>count: <strong>{{ c.count }}</strong></p>
-<p>state: <strong>{{ c.state | challenge }}</strong></p>
+<div class="challengeInfo" style="margin-left: 69px">
+    <p>user: <strong>{{ c.user }}</strong></p>
+    <p>deposit: <strong>{{ c.deposit }}</strong></p>
+    <p>beginning: <strong><span am-time-ago="c.beginning | amFromUnix"></span></strong></p>
+    <p>end: <strong><span am-time-ago="c.end | amFromUnix"></span></strong></p>
+    <p>count: <strong>{{ c.count }}</strong></p>
+    <p>state: <strong>{{ c.state | challenge }}</strong></p>
+</div>
 
-<table class="table table-sm table-bordered">
+<table class="table table-sm table-bordered" ng-show="submissions.length">
     <tr>
         <th class="index"></th>
         <th class="index">ID</th>
@@ -22,9 +24,11 @@
         <td><a href="{{ s.url }}" target="_blank">{{ s.comment}} <i class="fas fa-external-link-alt"></i></a></td>
         <td><span am-time-ago="s.timestamp | amFromUnix"></span></td>
         <td>{{ s.state | submission }}</td>
-        <td><a href ng-click="disputeSubmission(s)"><i class="fas fa-exclamation-triangle"></i></a></td>
+        <td><a href ng-click="disputeSubmission(s)" ng-show="s.state === 0"><i class="fas fa-exclamation-triangle"></i></a></td>
     </tr>
 </table>
+
+<h3 ng-hide="submissions.length">There are no submissions to this challenge.</h3>
 
 <h4>Submit new evidence</h4>
 

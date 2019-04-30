@@ -31,9 +31,10 @@ contract('SelfCommitment', async function(accounts) {
         submissionsCount = await selfCommitment.getSubmissionsCount();
         assert.equal(submissionsCount.toNumber(), 2, 'There should be exactly two submissions');
 
-        let submissionTwoID = await selfCommitment.chalengeIDToSubmissionIDs.call(0, 1);
-        let submissionTwo = await selfCommitment.getSubmissionById(submissionTwoID);
-        assert.equal(submissionTwo[1], "url2", "URL of submission 2 not stored correctly");
+        let submissionIDs = await selfCommitment.getChallengeSubmissionIDs.call(0); // using getter, because call() on the mapping directly requires a second parameter
+        console.log(submissionIDs);
+        // let submissionTwo = await selfCommitment.getSubmissionById(submissionTwoID);
+        // assert.equal(submissionTwo[1], "url2", "URL of submission 2 not stored correctly");
     });
   
   })
