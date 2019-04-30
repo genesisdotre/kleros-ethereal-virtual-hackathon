@@ -166,7 +166,7 @@ contract SelfCommitment is IArbitrable {
 
 		for (uint i=0; i<submissionsIDs.length; i++) { // ANTI-PATTERN: loop that can be too big, but in the ctor we limit to 1000 items
 			Submission memory s = submissions[ submissionsIDs[i] ];
-			if (s.state == SubmissionState.initial || s.state != SubmissionState.accepteed) {
+			if (s.state == SubmissionState.initial || s.state != SubmissionState.accepted) {
 				potentiallyValidSubmissions++;
 			}
 		}
