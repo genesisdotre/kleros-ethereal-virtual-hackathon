@@ -84,6 +84,7 @@ contract SelfCommitment is IArbitrable {
 		require(msg.value > 0, "You need to send a deposit"); // require a deposit, otherwise what's the point?
 		// require(_beginning > now, "Challenge cannot start in the past"); 
 		// require(_end > now + 1 days, "Challenge must last at least 1 day");
+		require(_count < 1000, "1000 is max, this is actually to prevent gas issues");
 		require(_count > 1, "You need to commit to do the thing at least once");
 
 		Challenge memory challenge = Challenge({user: msg.sender, deposit: msg.value, description: _description, beginning: _beginning, end: _end, count: _count, state: ChallengeState.initial});
@@ -126,9 +127,19 @@ contract SelfCommitment is IArbitrable {
 		Submission storage s = submissions[_submissionID];
 		s.disputeID = disputeID;
 		s.state = SubmissionState.challenged;
+		uint challengeID = submissions[_submissionID].challengeID;
+
+		// "MetaEvidence has to be created before a dispute can arise."
+		// HolyCow! 10 days into the project and 23:20 on the final day I'm laerning that.
+		// One MetaEvidence per challenge (1:1 relationship) so using challengeID
+		// Still confused: https://github.com/ethereum/EIPs/issues/1497#issuecomment-488121150
+		// No amount of reading will change it, the way how standard is presented has to be simplified
+		emit MetaEvidence(challengeID, _evidenceURI);
+		emit Evidence(arbitrator, challengeID, msg.sender, _evidenceURI);
+		emit Dispute(arbitrator, disputeID, challengeID, challengeID);
 	}
 
-	// @override (why Solidity do not specify @override keyword?) part of IArbitrable 
+	// @override (why Solidity does not specify @override keyword?) part of IArbitrable 
     function rule(uint _disputeID, uint _ruling) public onlyArbitrator {
         emit Ruling(Arbitrator(msg.sender), _disputeID, _ruling);
 
@@ -151,15 +162,15 @@ contract SelfCommitment is IArbitrable {
 		
 		uint[] memory submissionsIDs = getChallengeSubmissionIDs(_challengeID);
 		uint count = challenges[_challengeID].count;
-		uint notInvalidSubmissions = 0;
+		uint potentiallyValidSubmissions = 0;
 
-		for (uint i=0; i<submissionsIDs.length; i++) { 
+		for (uint i=0; i<submissionsIDs.length; i++) { // ANTI-PATTERN: loop that can be too big, but in the ctor we limit to 1000 items
 			Submission memory s = submissions[ submissionsIDs[i] ];
-			if (s.state != SubmissionState.challenged && s.state != SubmissionState.rejected) {
-				notInvalidSubmissions++;
+			if (s.state == SubmissionState.initial || s.state != SubmissionState.accepteed) {
+				potentiallyValidSubmissions++;
 			}
 		}
-		return notInvalidSubmissions >= count;
+		return potentiallyValidSubmissions >= count;
 	}
 
 	function withdrawFunds(uint _challengeID) public {
