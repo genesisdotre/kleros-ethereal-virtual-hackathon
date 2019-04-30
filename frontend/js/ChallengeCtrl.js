@@ -2,13 +2,19 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams, utils)
     console.log($routeParams);
     $scope.id = $routeParams.id;
     $scope.submissions = [];
-  
+
     $scope.form = {
       url: "https://www.youtube.com/watch?v=yQjHSIHPJfw",
       description: "20 minutes meditation Today",
     };
   
     setTimeout(async function() { // HACK HACK HACK
+
+      // https://github.com/genesisdotre/kleros-ethereal-virtual-hackathon/issues/3
+      contract.getChallengeById($scope.id).then(function(r) {
+        $scope.c = new Challenge(r[0], parseFloat(ethers.utils.formatEther(r[1])).toFixed(3), r[2], r[3].toNumber(), r[4].toNumber(), r[5].toNumber(), r[6] );
+      });
+
       let submissionIDs = await contract.getChallengeSubmissionIDs($scope.id);
       submissionIDs = submissionIDs.map(s => s.toNumber()); // these do not have consecutive numbers
       let arrayOfPromises = [];

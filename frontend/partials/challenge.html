@@ -1,4 +1,11 @@
-<h1><a href="#"><i class="fas fa-home"></i></a></li> &nbsp;&nbsp;&nbsp; Challenge {{ id }}</h1>
+<h1><a href="#"><i class="fas fa-home"></i></a></li> &nbsp;&nbsp;&nbsp; Challenge: &quot;{{ c.description }}&quot;</h1>
+
+<p>user: <strong>{{ c.user }}</strong></p>
+<p>deposit: <strong>{{ c.deposit }}</strong></p>
+<p>beginning: <strong><span am-time-ago="c.beginning | amFromUnix"></span></strong></p>
+<p>end: <strong><span am-time-ago="c.end | amFromUnix"></span></strong></p>
+<p>count: <strong>{{ c.count }}</strong></p>
+<p>state: <strong>{{ c.state | challenge }}</strong></p>
 
 <table class="table table-sm table-bordered">
     <tr>

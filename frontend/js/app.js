@@ -7,7 +7,7 @@ console.log(archon.version, "Archon is on!");
 const app = angular.module('app', ['angularMoment', 'ngRoute', 'ui.bootstrap'])
 
 app.run(async function($rootScope) {
-  $rootScope.address = "0xe4939e481ec2f313f1428db8e2dc776868144ca8";
+  $rootScope.address = "0xe75142aa2a7ca74dad04ebcc3c9608f0f28bfdcd";
   
   try {
     accounts = await ethereum.enable();
