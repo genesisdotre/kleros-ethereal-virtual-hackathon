@@ -9,15 +9,21 @@
 * [ERC1497](https://github.com/ethereum/EIPs/issues/1497) - Evidence standard
 * Communication channels: <a href="https://kleros.slack.com/messages/hackathon/">Kleros Slack hackathon channel</a> + <a href="https://slack.kleros.io/">invite</a> + <a href="https://t.me/kleros">Telegram</a>
 
+# Video walkthrough )(hacktathon 7:15am quality)_
+
+* https://youtu.be/M_aVCHRCups
+
+[![](youtube.jpg?raw=true "Create new challenge")](https://youtu.be/M_aVCHRCups)
+
 # Self Commitment App
-
-### Create a new challenge
-
-![](create-new-challenge.png?raw=true "Create new challenge")
 
 It takes 30 days to build habit
 
 You commit to do 30 workouts in 30 days.
+
+### Create a new challenge
+
+![](create-new-challenge.png?raw=true "Create new challenge")
 
 <!---
 But... Sometimes life happens.
@@ -47,7 +53,7 @@ It may happen that jurors will reject the submission. That is OK too. I believe 
 
 Realistically speaking - it's a hackathon project, unlikely to be continued.
 
-I already have some other ideas how to use Kleros. *"Oracle as a Service"* - human intelligence API to tell the factual state, knowing 
+I already have some other ideas how to use Kleros. *"Oracle as a Service"* - human intelligence API to tell the factual state, knowing that rational game-theory incentives are in play on the Kleros side. 
 
 ![](kleros-simple-use-case.png?raw=true "simple Kleros")
 
