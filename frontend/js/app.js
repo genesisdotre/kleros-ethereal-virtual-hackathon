@@ -10,7 +10,7 @@ app.run(async function($rootScope) {
   $rootScope.address = "0x02065e823843D9e5277786e6CdD4764D92AcE2a4";
 
   try {
-    $rootScope.accounts = await ethereum.enable();
+    $rootScope.accounts = accounts = await ethereum.enable();
   } catch (error) {
     gotofail();
     console.log(error);
@@ -25,6 +25,15 @@ app.run(async function($rootScope) {
   if (network.chainId !== 42) {
     gotofail();
   }
+
+  let networkLongPolling = setInterval(async function(){
+    network = await provider.getNetwork()
+
+    if (network.chainId !== 42) {
+      clearInterval(networkLongPolling);
+      gotofail();
+    }
+  }, 1000);
 
   signer = provider.getSigner();
 
