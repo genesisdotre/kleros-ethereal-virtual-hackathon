@@ -9,11 +9,11 @@
 * [ERC1497](https://github.com/ethereum/EIPs/issues/1497) - Evidence standard
 * Communication channels: <a href="https://kleros.slack.com/messages/hackathon/">Kleros Slack hackathon channel</a> + <a href="https://slack.kleros.io/">invite</a> + <a href="https://t.me/kleros">Telegram</a>
 
-# Video walkthrough )(hacktathon 7:15am quality)_
+# Video walkthrough _(hackathon 7:15am quality)_
 
-* https://youtu.be/M_aVCHRCups
+### https://youtu.be/M_aVCHRCups
 
-[![](youtube.jpg?raw=true "Create new challenge")](https://youtu.be/M_aVCHRCups)
+[![](youtube.jpg?raw=true "YouTube thumbnail")](https://youtu.be/M_aVCHRCups)
 
 # Self Commitment App
 
@@ -117,7 +117,7 @@ Now it is much simpler, go figure: https://genesis.re/kleros-metaevidence-metaha
 
 Effective altruism. Exponential technologies. 
 
-I live in one of the most expensive cities on this planet and I'm open to extra work.
+**I live in one of the most expensive cities on this planet and I'm open to extra work.**
 
 * https://genesis.re/360/cop24/
 * https://genesis.re/wiki/#Open_letter_to_Extinction_Rebellion
