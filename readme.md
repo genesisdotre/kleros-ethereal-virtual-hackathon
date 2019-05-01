@@ -1,75 +1,65 @@
 # Kleros Ethereal Virtual Hackathon
 
-* The Ethereal Hackathon: https://gitcoin.co/hackathon/ethhack2019/"
+* The Ethereal Hackathon: https://gitcoin.co/hackathon/ethhack2019/
 * Medium blog post announcement: https://medium.com/gitcoin/the-ethereal-hackathon-4f5dc2eb56d6
-* <a href="https://kleros.slack.com/messages/hackathon/">Kleros Slack hackathon channel</a> + <a href="https://slack.kleros.io/">invite</a></li>
-* The idea on Kleros forum: <a href="https://forum.kleros.io/t/self-commitment-in-todo-app/87
 * Gitcoin bounty: https://gitcoin.co/issue/kleros/hackathon/1/2824
 * Deployed to GitHub pages: https://genesis.re/kleros-ethereal-virtual-hackathon/frontend
+* The idea on Kleros forum: https://forum.kleros.io/t/self-commitment-in-todo-app/87
+* [ERC792](https://github.com/ethereum/EIPs/issues/792) - Arbitrable standard
+* [ERC1497](https://github.com/ethereum/EIPs/issues/1497) - Evidence standard
+* Communication channels: <a href="https://kleros.slack.com/messages/hackathon/">Kleros Slack hackathon channel</a> + <a href="https://slack.kleros.io/">invite</a> + <a href="https://t.me/kleros">Telegram</a>
 
+# Self Commitment App
 
-### Self Commitment App
+### Create a new challenge
 
-It takes ___ days to build habit
+![](create-new-challenge.png?raw=true "Create new challenge")
 
-It's a freedom but we suggest 30.
+It takes 30 days to build habit
 
 You commit to do 30 workouts in 30 days.
 
-
+<!---
 But... Sometimes life happens.
 
 1. Early morning international flight across several timezones
-2. Battery on the phone dying
+2. Battery out of juice
 3. Running out of storage
 4. Not pressing record button
 5. Internet too slow to upload
 6. Anything really, life happens, especially if you are a guy like me.
 
-It is OK to upload 2 videos a day later. If you do 30 workouts in 30 days and you miss one day and 2x the following one - it's OK with me, it's perfectly acceptable outcome.
+It is OK to upload 2 videos a day later. If you do 30 workouts in 30 days and you miss one day and do 2x the following one - it's OK with me, it's perfectly acceptable outcome.
 
-It may happen that jurors will reject the submission. That is OK too.
+To keep it simple - we are not doing an appeal process. It's not $1m on the line, it's a workout that you can do in 15 minutes. Just do it again and this time make sure there are no doubts.
 
-To keep it simple - we are not doing an appeal process. It's not $1m on the line, it's a workout that you can do in 15 minutes. Just do it again and this time make sure 
+It may happen that jurors will reject the submission. That is OK too. I believe in incentives and training of Klerors jurors to sufficiently tell whether your submission was valid in the first place.
 
-
-### Similar Projects
-
-This time in a decentralized manner.
-
-Reminds me: https://gofuckingdoit.com/
-
-Pavlock
-Stickk
-Anticharity - giving money to orphanage in Africa doesn't feel as bad as neo-nazi-hitler-legacy-institute
-
-(especially if they have public record of donors)
-
+-->
 
 ### Good things
 
-It works
-Uses the Arbitration and Evidence standards
-
+* End to end
+* Verified on Etherscan
+* Uses the Arbitration and Evidence standards
 
 ### Development
 
-Realistically speaking - it's a hackathon project.
+Realistically speaking - it's a hackathon project, unlikely to be continued.
 
-I already have some other ideas how to use Kleros.
+I already have some other ideas how to use Kleros. *"Oracle as a Service"* - human intelligence API to tell the factual state, knowing 
 
-![Alt text](kleros-simple-use-case.png?raw=true "Title")
-
+![](kleros-simple-use-case.png?raw=true "simple Kleros")
 
 #### 1. No surprises here
 
 * `git clone`
 * `npm install`
+* `npm run ganache && npm run test`
 
 #### 2. Check open issues
 
-MetaMask usability - if we are talking wider adoption it has to improve.
-
+Actually if I was to report everything, there would be too many. 
 
 #### 3. Local version of Truffle (required to run the tests)
 Kleros reference implementation is using `pragma solidity ^0.4.15;` it means there are some deprecated solidity features.
@@ -80,43 +70,50 @@ If you want to run tests *(hint: you want to run tests)* you should do `npm run 
 
 #### 4. Debugging unit tests
 
-1. Put `debugger` statement in JavaScript code
+1. Put `debugger` statement in the JavaScript code
 
 2. `node --inspect-brk ./node_modules/truffle/build/cli.bundled.js test test/test_to_debug.js`
 
-3. `Open chrome://inspect`
+3. Open `chrome://inspect`
 
 #### 5. Preserve credentials in MetaMask for interactions in the UI
 
-Have the same mnemonic each time, to preserve settings in MetaMask:
-* `ganache-cli -m "____ ____ ____ ____"
+Have the same mnemonic each time, to preserve account in MetaMask:
+* `ganache-cli -m "____ ____ ____ ____"`
 
 #### 6. Increase gasLimit to 8000000
 
 Especially if you are using Remix.
 
 
-### Related (also hackathon) project
+<!--- 
 
-Until recently I never uploaded stuff to IPFS.
+### Similar Projects
+
+Idea is by no means original. The difference - using decentralized architecture and Kleros arbitration and evidence standards.
+
+* Reminds me: https://gofuckingdoit.com/
+* Pavlock
+* Stickk
+* Anticharity - giving money to orphanage in Africa doesn't feel as bad as neo-nazi-hitler-legacy-institute
+
+(especially if they have public record of donors)
+
+-->
+
+### Related, also ethereal hackathon project
+
+Until recently I've never uploaded stuff to IPFS.
 
 Now it is much simpler, go figure: https://genesis.re/kleros-metaevidence-metahash/
 
-
-
-### Related links
-
-* https://kleros.io
-* [ERC792](https://github.com/ethereum/EIPs/issues/792) - Arbitrable standard
-* ERC1497 - Evidence standard
-
-
 ### Consulting gigs and impactful work
 
-Effective altruism. Exponential technologies.
-
-https://genesis.re/360/cop24/
-
-https://genesis.re/wiki/#Open_letter_to_Extinction_Rebellion
+Effective altruism. Exponential technologies. 
 
 I live in one of the most expensive cities on this planet and I'm open to extra work.
+
+* https://genesis.re/360/cop24/
+* https://genesis.re/wiki/#Open_letter_to_Extinction_Rebellion
+
+![](shenzhen-hackathon.png?raw=true "Shenzhen hackathon")
