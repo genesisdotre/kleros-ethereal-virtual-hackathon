@@ -4,8 +4,8 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams, utils)
     $scope.submissions = [];
 
     $scope.form = {
-      url: "https://www.youtube.com/watch?v=yQjHSIHPJfw",
-      description: "20 minutes meditation Today",
+      url: "",
+      description: "",
     };
   
     setTimeout(async function() { // HACK HACK HACK
@@ -33,7 +33,6 @@ app.controller('ChallengeCtrl', function($scope, $http, $q, $routeParams, utils)
       })
   
     }, 1000); // HACK HACK HACK
-  
   
     $scope.newEvidence = async function() {
       await contract.createSubmission($scope.form.url, $scope.form.description, $scope.id);

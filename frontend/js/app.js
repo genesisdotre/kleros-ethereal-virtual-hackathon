@@ -4,20 +4,27 @@ var archon = new Archon('https://mainnet.infura.io');
 archon.setIpfsGateway('https://gateway.ipfs.io');
 console.log(archon.version, "Archon is on!");
 
-const app = angular.module('app', ['angularMoment', 'ngRoute', 'ui.bootstrap'])
+const app = angular.module('app', ['angularMoment', 'ngRoute'])
 
 app.run(async function($rootScope) {
   $rootScope.address = "0x02065e823843D9e5277786e6CdD4764D92AcE2a4";
 
   try {
-    accounts = await ethereum.enable();
+    $rootScope.accounts = await ethereum.enable();
   } catch (error) {
+    gotofail();
     console.log(error);
   }
 
   provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
-  console.log(await provider.getNetwork());
+  network = await provider.getNetwork();
+
+  console.log(network);
+
+  if (network.chainId !== 42) {
+    gotofail();
+  }
 
   signer = provider.getSigner();
 
@@ -45,3 +52,9 @@ app.filter('challenge', function() {
 app.filter('submission', function() {
   return function(input) { return SubmissionState[input] };
 });
+
+// OMFG such a beautiful hack
+function gotofail() {
+  $("[ng-view]").hide();
+  $("#metamask-kovan").show();
+}

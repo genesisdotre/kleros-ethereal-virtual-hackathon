@@ -19,12 +19,11 @@
     <meta name="twitter:image" content="https://genesis.re/kleros-metaevidence-metahash/img/preview2.jpg">
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular-route.min.js"></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.14.3/ui-bootstrap-tpls.min.js'></script> <!-- ancient version -->
-
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js" integrity="sha256-CutOzxCRucUsn6C6TcEYsauvvYilEniTXldPa6/wu0k=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-moment/1.2.0/angular-moment.min.js"></script>
     <script src="https://unpkg.com/ipfs-http-client@30.1.3/dist/index.js"></script>
@@ -40,13 +39,35 @@
 
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.2.2/gh-fork-ribbon.min.css" />
       <a class="github-fork-ribbon" href="https://github.com/genesisdotre/kleros-ethereal-virtual-hackathon" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
-  
+
       <div class="container">
         
         <h1><a href="#"><i class="fas fa-home"></i></a> Kleros Ethereal Virtual Hackathon</h1>
 
+        <div id="metamask-kovan" style="display:none">
+            <img src="images/metamask-kovan.jpg" style="max-width: 100%;">
+            <br>
+            <br>
+            <pre>I'm really sorry guys.
+Usability and User Experience coming in an afterthought LOL.
+Spent way too much time and energy getting IPFS and evidence standard.
+Luckily, there is something really cool coming: https://www.blocknative.com/
+Too bad Kovan is not supported (yet).
+On desktop Chrome / Firefox / Opera with Metamask or Brave.
+On mobile (rumours) https://www.cipherbrowser.com/ or https://alphawallet.com</pre>
+
+          </div>        
+
         <div ng-view></div>
 
+        <footer style="font-size: 0.7em">
+          <p>
+            <br>
+            Centralized Arbitrator: <a href="https://kovan.etherscan.io/address/0x55a677cc19a0050321013d9a85b57e9c67e41d22#code">kovan.etherscan.io/address/0x55a677cc19a0050321013d9a85b57e9c67e41d22</a>
+            <br>
+            The App: <a href="https://kovan.etherscan.io/address/0x02065e823843d9e5277786e6cdd4764d92ace2a4#code">kovan.etherscan.io/address/0x02065e823843d9e5277786e6cdd4764d92ace2a4</a>
+          </p>
+        </footer>
       </div>
     </div>
 
