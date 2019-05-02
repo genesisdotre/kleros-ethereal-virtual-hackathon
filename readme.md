@@ -1,3 +1,7 @@
+# [genesis.re/kleros-ethereal-virtual-hackathon/frontend](https://genesis.re/kleros-ethereal-virtual-hackathon/frontend/)
+
+Deployed to GitHub pages, directly from the `master` branch.
+
 # Kleros Ethereal Virtual Hackathon
 
 * The Ethereal Hackathon: https://gitcoin.co/hackathon/ethhack2019/
@@ -23,7 +27,7 @@ You commit to do 30 workouts in 30 days.
 
 ### Create a new challenge
 
-![](create-new-challenge.png?raw=true "Create new challenge")
+<img src="create-new-challenge.png?raw=true" width="500px">
 
 <!---
 But... Sometimes life happens.
