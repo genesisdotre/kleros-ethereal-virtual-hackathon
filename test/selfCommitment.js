@@ -11,9 +11,9 @@ contract('SelfCommitment', async function(accounts) {
     const troll = accounts[3]; // internet troll who is disputing a submissiono.
     const arbitratorOwner = accounts[5]
     const day = 24 * 60 * 60;
-    const minute = 60
+    const minute = 60;
     const ETH = 10**18;
-    const now = Math.floor( (+new Date()) / 1000 ); // with multiple tests, there are multiple values of "now" (tricky business)
+    const now = Math.floor( (+new Date()) / 1000 );
 
     let arbitrator;
     let selfCommitment;
@@ -24,15 +24,9 @@ contract('SelfCommitment', async function(accounts) {
     })
   
     it('Should create a first challenge and craete two submissions', async () => {
-
-
-        console.log("TEST 1")
-
         await selfCommitment.createChallenge("20 pushups", now + minute, now + 4*day, 20, { from: creator1, value: ETH });
         let challengesCount = await selfCommitment.getChallengesCount();
         assert.equal(challengesCount.toNumber(), 1, 'There should be exactly one challenge');
-
-        console.log("craeted...")
 
         let c = await selfCommitment.getChallengeById(0); // using short letters to avoid typing
 
@@ -65,13 +59,14 @@ contract('SelfCommitment', async function(accounts) {
         assert.equal(submissionTwo[4].toNumber(), 0, "state should be initial");
     });
 
-    it('Should create a three challenges and craete two submissions to the second one and challenge then', async () => {
+    it('Should create a three challenges and create two submissions to the second one and challenge then', async () => {
         await selfCommitment.createChallenge("21 pushups", now + 2*minute, now + 4*day, 20, { from: creator1, value: ETH });
         await selfCommitment.createChallenge("22 pushups", now + 2*minute, now + 4*day, 20, { from: creator2, value: ETH });
         await selfCommitment.createChallenge("23 pushups", now + 2*minute, now + 4*day, 20, { from: creator1, value: ETH });
         await increaseTime(2*minute); 
         await selfCommitment.createSubmission("url",  "something",  1, { from: creator2 });
         await selfCommitment.createSubmission("url2", "something2", 1, { from: creator2 });
+        await selfCommitment.createSubmission("url3", "something3", 1, { from: creator2 });
 
         // Only creator of the challenge can create submission, expecting throw
         await expectThrow( selfCommitment.createSubmission("url2", "something2", 1, { from: creator1 }) );
@@ -88,43 +83,19 @@ contract('SelfCommitment', async function(accounts) {
         s = await selfCommitment.getSubmissionById(disputedSubmissionID);
         assert.equal(s[4].toNumber(), 2, "state should be accepted");
 
+        // Now we are disputing third (id = 2) submission
+        // Excess of the fee is returned (we send 10x the arbitration cost)
+        disputedSubmissionID = 2;
 
+        let balanceBefore = web3.eth.getBalance(troll).toNumber()
+        await selfCommitment.disputeSubmission(disputedSubmissionID, "url", "url", { from: troll, value: arbitrationCost * 10 })
+        let balanceAfter = web3.eth.getBalance(troll).toNumber()
+        assert.closeTo(balanceBefore, balanceAfter + arbitrationCost, 0.05 * ETH, "sending too much ETH for arbitration fees should be refunded");
 
-        // Excess of the fee is returned
-
-
-
-
-        // submissionsCount = await selfCommitment.getSubmissionsCount();
-        // assert.equal(submissionsCount.toNumber(), 2, 'There should be exactly two submissions');
-
-        // let submissionIDs = await selfCommitment.getChallengeSubmissionIDs.call(0); // using getter, because call() on the mapping directly requires a second parameter
-        // let secondSubmissionID = submissionIDs[1].toNumber();
-        // let submissionTwo = await selfCommitment.getSubmissionById(secondSubmissionID);
-
-        // console.log(submissionTwo);
-
-        // assert.equal(submissionTwo[0].toNumber(), 0, "Challenge ID is 0");
-        // assert.equal(submissionTwo[1], "url2", "URL of submission 2 not stored correctly");
-        // assert.equal(submissionTwo[2], "something2", "Description of submission 2 not stored correctly");
-        // assert.equal(submissionTwo[3], "url2", "URL of submission 2 not stored correctly");
-
-        // console.log(submissionTwo[3]);
-        // console.log(submissionTwo[3].toNumber());
-        // var time = submissionTwo[3].toNumber();
-        // var date = new Date(time);
-        // console.log(date);
-
-
-        // assert.equal(submissionTwo[4].toNumber(), 0, "state should be initial");
+        await arbitrator.giveRuling(1, 2, { from: arbitratorOwner });
+        s = await selfCommitment.getSubmissionById(disputedSubmissionID);
+        assert.equal(s[4].toNumber(), 3, "state should be rejected");
     });
 
-
-
-
-    // TODO: I really wish I had more time to write tests
-    // Right now prioritising better usability, as this is something jurors will see
-    // It is very unfortunate that I've wasted so much time on that: https://ethereum.stackexchange.com/a/43633/2524
-    // ⚠️ This repo is deprecated ⚠️ Truffle has moved all modules to a monorepo at trufflesuite/truffle. See you over there!
 
   })
