@@ -14,7 +14,7 @@ contract('SelfCommitment', async function(accounts) {
     const day = 24 * 60 * 60;
     const minute = 60;
     const ETH = 10**18;
-    
+
     let now;
     let arbitrator;
     let selfCommitment;
@@ -95,9 +95,16 @@ contract('SelfCommitment', async function(accounts) {
         let balanceAfter = web3.eth.getBalance(troll).toNumber()
         assert.closeTo(balanceBefore, balanceAfter + arbitrationCost, 0.05 * ETH, "sending too much ETH for arbitration fees should be refunded");
 
+
+        balanceBefore = web3.eth.getBalance(arbitratorOwner).toNumber()
+
         await arbitrator.giveRuling(1, 2, { from: arbitratorOwner });
         s = await selfCommitment.getSubmissionById(disputedSubmissionID);
         assert.equal(s[4].toNumber(), 3, "state should be rejected");
+
+        balanceAfter = web3.eth.getBalance(arbitratorOwner).toNumber()
+        assert.closeTo(balanceBefore + arbitrationCost, balanceAfter, 0.01 * ETH, "Arbitrator should earn the abitration fee");
+
     });
 
     it('Should allow withdrawing money to original challenge creator if successful', async () => {
