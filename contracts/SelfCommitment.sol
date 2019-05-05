@@ -6,17 +6,18 @@ import "./Arbitrator.sol";
 contract SelfCommitment is IArbitrable {
 
 	event Log(string debugInfo); // I'm totally new to this business, figuring things out
-    
+	event Log(uint debugInfo); // I'm totally new to this business, figuring things out
+
     modifier onlyArbitrator {require(msg.sender == address(arbitrator), "Can only be called by the arbitrator."); _;}
     Arbitrator public arbitrator; // address of the arbitrator contract
     bytes public arbitratorExtraData; // potentially Court ID)
 
 	uint8 constant AMOUNT_OF_CHOICES = 2;
-	uint8 constant REFUSED = 0; // arbitrator always has 
+	uint8 constant REFUSED = 0; // arbitrator always has option to refuse ruling
     uint8 constant OK = 1;
     uint8 constant FAIL = 2;
     uint constant MAX_INT = (2**256-2)/2; // 0 is valid disputeID, initialising with MAX_INT
-	
+
 	modifier onlyOwner {require(msg.sender == address(owner), "Can only be called by the owner."); _;}
 	address public owner; // for simplicity, owner is also a beneficiary of the funds from failed challenges (Effective Altruism, Exponential Technologies)
 
@@ -41,11 +42,9 @@ contract SelfCommitment is IArbitrable {
 		address user;
 		uint deposit;
 		string description;
-		
 		uint beginning;
 		uint end;
-		uint count; // how many 
-		
+		uint count; // how many
 		ChallengeState state;
 	}
 
@@ -56,25 +55,25 @@ contract SelfCommitment is IArbitrable {
 		uint timestamp;
 		uint disputeID;
 		SubmissionState state;
-	}	
+	}
 
 	Challenge[] public challenges;
 	Submission[] public submissions;
 	string[] public MetaEvidenceHashes;
-	
+
 	function getChallengesCount() public view returns(uint) { return challenges.length; }
 	function getSubmissionsCount() public view returns(uint) { return submissions.length; }
-	
+
 	mapping (address => uint[]) public userToChallengeIDs; // user can have multiple challanges
 	mapping (uint => uint[]) public chalengeIDToSubmissionIDs; // challenge has multiple submissions, returning the array containing all of them _(OMFG: can you believe I don't even know how to properly initialize struct with the dynamic array? YES... This is my expert level here.)_
 	mapping (uint => uint) public disputeIDToSubmissionID; // dispute refers to particular submission, not the whole challenge
 	mapping (uint => string) public challengeIDToMetaEvidenceHash; // challenge has multiple submissions but only one MetaEvidence (that describes challenge)
-    
+
 	function getUserChallengeIDs(address user) public view returns(uint[] memory) {
 	    uint[] memory IDs = userToChallengeIDs[user];
 	    return IDs;
 	}
-	
+
 	function getChallengeSubmissionIDs(uint challengeID) public view returns(uint[] memory) {
 	    uint[] memory IDs = chalengeIDToSubmissionIDs[challengeID];
 	    return IDs;
@@ -82,8 +81,8 @@ contract SelfCommitment is IArbitrable {
 
 	function createChallenge(string memory _description, uint _beginning, uint _end, uint _count) payable public returns (uint) {
 		require(msg.value > 0, "You need to send a deposit"); // require a deposit, otherwise what's the point?
-		// require(_beginning > now, "Challenge cannot start in the past"); 
-		// require(_end > now + 1 days, "Challenge must last at least 1 day");
+		require(_beginning >= now, "Challenge cannot start in the past");
+		require(_end >= now + 1 days, "Challenge must last at least 1 day"); // arbitrary, we are building habits (common sense)
 		require(_count < 1000, "1000 is max, this is actually to prevent gas issues");
 		require(_count > 1, "You need to commit to do the thing at least once");
 
@@ -97,7 +96,9 @@ contract SelfCommitment is IArbitrable {
 	}
 
 	function createSubmission(string memory _url, string memory _comment, uint _challengeID) public returns (uint) {
-		require(challenges[_challengeID].user == msg.sender); // only the guy who sets the challenge can add new stuff
+		require(challenges[_challengeID].user == msg.sender, "only the guy who sets the challenge can add new stuff");
+		require(challenges[_challengeID].beginning <= now, "can submit only after beginning");
+		require(challenges[_challengeID].end >= now, "can submit only before end");
 
 		Submission memory submission = Submission({challengeID : _challengeID, url : _url, comment: _comment, timestamp: now, disputeID: MAX_INT, state: SubmissionState.initial });
 		uint id = submissions.push(submission) - 1;
@@ -109,26 +110,34 @@ contract SelfCommitment is IArbitrable {
 	}
 
 	function getChallengeById(uint256 challengeID) public view returns(address, uint, string memory, uint, uint, uint, ChallengeState) {
-		Challenge memory c =  challenges[challengeID];
+		Challenge memory c = challenges[challengeID];
 		return(c.user, c.deposit, c.description, c.beginning, c.end, c.count, c.state);
 	}
-	
+
 	function getSubmissionById(uint256 submissionID) public view returns(uint, string memory, string memory, uint, SubmissionState) {
-		Submission memory s =  submissions[submissionID];
+		Submission memory s = submissions[submissionID];
 		return(s.challengeID, s.url, s.comment, s.timestamp, s.state);
 	}
-	
+
 	// A lot things will happen on the front-end
 	// Building metaEvidence.json and evidence.json and then uploading to IPFS
 	// Here we are only submitting IPFS paths to preserve on-chain storage
 	// We could use any "traditional" centralized storage, that's why using ipfs:// URI qualifier
-	function disputeSubmission(uint _submissionID, string _metaEvidenceURI, string _evidenceURI)  public { // public: any internet troll can dispute submission
-		uint disputeID = arbitrator.createDispute.value(0)(AMOUNT_OF_CHOICES, ""); // "" means no extraData
+	function disputeSubmission(uint _submissionID, string _metaEvidenceURI, string _evidenceURI) public payable { // public: any internet troll can dispute submission
 		Submission storage s = submissions[_submissionID];
-		s.disputeID = disputeID;
+		uint arbitrationCost = arbitrator.arbitrationCost(arbitratorExtraData);
+		require(msg.value >= arbitrationCost, "you need to send more than the arbitration cost");
+		require(s.state == SubmissionState.initial, "can dispute only a submission in a initial state");
+		msg.sender.transfer(msg.value - arbitrationCost);
+
+		uint disputeID = arbitrator.createDispute.value(arbitrationCost)(AMOUNT_OF_CHOICES, ""); // "" means no extraData
+
+		disputeIDToSubmissionID[disputeID] = _submissionID;
+		s.disputeID = disputeID; // in case we want to look into dispute knowing the submission
 		s.state = SubmissionState.challenged;
 		uint challengeID = submissions[_submissionID].challengeID;
 
+		// TODO THINK FIXME
 		// "MetaEvidence has to be created before a dispute can arise."
 		// HolyCow! 10 days into the project and 23:20 on the final day I'm laerning that.
 		// One MetaEvidence per challenge (1:1 relationship) so using challengeID
@@ -139,7 +148,7 @@ contract SelfCommitment is IArbitrable {
 		emit Dispute(arbitrator, disputeID, challengeID, challengeID);
 	}
 
-	// @override (why Solidity does not specify @override keyword?) part of IArbitrable 
+	// @override (why Solidity does not specify @override keyword?) part of IArbitrable
     function rule(uint _disputeID, uint _ruling) public onlyArbitrator {
         emit Ruling(Arbitrator(msg.sender), _disputeID, _ruling);
 
@@ -147,7 +156,7 @@ contract SelfCommitment is IArbitrable {
     }
 
     function executeRuling(uint _disputeID, uint _ruling) internal {
-        Submission storage s = submissions[ disputeIDToSubmissionID[_disputeID] ];
+        Submission storage s = submissions[disputeIDToSubmissionID[_disputeID]];
         if (_ruling == OK) {
             s.state = SubmissionState.accepted;
         } else if (_ruling == FAIL || _ruling == REFUSED) {
@@ -159,13 +168,12 @@ contract SelfCommitment is IArbitrable {
 	// Change the money, change the world: https://www.youtube.com/watch?v=laE0OzKRE-A
 	// Have you ever wondered why `InTheCurrentState` name? Because someone can still callenge an individual submission
 	function isChallengeSuccessfulInTheCurrentState(uint _challengeID) public view returns (bool) {
-		
 		uint[] memory submissionsIDs = getChallengeSubmissionIDs(_challengeID);
 		uint count = challenges[_challengeID].count;
 		uint potentiallyValidSubmissions = 0;
 
-		for (uint i=0; i<submissionsIDs.length; i++) { // ANTI-PATTERN: loop that can be too big, but in the ctor we limit to 1000 items
-			Submission memory s = submissions[ submissionsIDs[i] ];
+		for (uint i = 0; i<submissionsIDs.length; i++) { // ANTI-PATTERN: loop that can be too big, but in the ctor we limit to 1000 items
+			Submission memory s = submissions[submissionsIDs[i]];
 			if (s.state == SubmissionState.initial || s.state != SubmissionState.accepted) {
 				potentiallyValidSubmissions++;
 			}
@@ -175,7 +183,7 @@ contract SelfCommitment is IArbitrable {
 
 	function withdrawFunds(uint _challengeID) public {
 		Challenge storage c = challenges[_challengeID];
-		require (now > c.end + (3 minutes), "Withdrawals are only possible 3 ~days~ minutes after the end of the challenge (minutes not days for debugging purposes");
+		require (now > c.end + (3 days), "Withdrawals are only possible 3 days after the end of the challenge");
 
 		if(isChallengeSuccessfulInTheCurrentState(_challengeID)) {
 			c.user.transfer(c.deposit);
