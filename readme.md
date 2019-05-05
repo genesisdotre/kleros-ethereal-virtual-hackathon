@@ -2,8 +2,9 @@
 
 Deployed to GitHub pages, directly from the `master` branch.
 
-# Kleros Ethereal Virtual Hackathon
+# 🥇 Kleros Ethereal Virtual Hackathon 🥇
 
+* Will stay at home: https://twitter.com/marsxrobertson/status/1124572930275467264
 * The Ethereal Hackathon: https://gitcoin.co/hackathon/ethhack2019/
 * Medium blog post announcement: https://medium.com/gitcoin/the-ethereal-hackathon-4f5dc2eb56d6
 * Gitcoin bounty: https://gitcoin.co/issue/kleros/hackathon/1/2824
@@ -61,6 +62,8 @@ I already have some other ideas how to use Kleros. *"Oracle as a Service"* - hum
 
 ![](kleros-simple-use-case.png?raw=true "simple Kleros")
 
+Check also: https://blog.kleros.io/launching-kleros-fellowship-second-edition/
+
 #### 1. No surprises here
 
 * `git clone`
@@ -78,6 +81,8 @@ If you have `Truffle` installed globally and run `truffle test` **IT WILL NOT WO
 
 If you want to run tests *(hint: you want to run tests)* you should do `npm run test` - in that way it will use locally installed `Truffle` in `node_modules`. It will compile, it will run.
 
+<img src="tests-are-cool.png?raw=true" width="600px">
+
 #### 4. Debugging unit tests
 
 1. Put `debugger` statement in the JavaScript code
@@ -94,7 +99,6 @@ Have the same mnemonic each time, to preserve account in MetaMask:
 #### 6. Increase gasLimit to 8000000
 
 Especially if you are using Remix.
-
 
 <!--- 
 
