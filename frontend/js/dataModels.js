@@ -25,7 +25,9 @@ let ChallengeState = {
     0: "initial", 
     1: "inprogress", 
     2: "success", 
-    3: "failed" 
+    3: "failed",
+    4: "successWithdraw",
+    5: "failedWithdraw"
 };
 
 let SubmissionState = { 

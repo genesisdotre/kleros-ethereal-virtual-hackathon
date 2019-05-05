@@ -1,5 +1,6 @@
 const { expectThrow } = require('./expectThrow')
 const { increaseTime } = require('./increaseTime')
+const { latestTime } = require('./latestTime');
   
 const SelfCommitment = artifacts.require('./SelfCommitment.sol')
 const CentralizedArbitrator = artifacts.require('./CentralizedArbitrator.sol')
@@ -8,19 +9,20 @@ contract('SelfCommitment', async function(accounts) {
     const sender = accounts[0]
     const creator1 = accounts[1];
     const creator2 = accounts[2];
-    const troll = accounts[3]; // internet troll who is disputing a submissiono.
+    const troll = accounts[3]; // internet troll who is disputing a submission
     const arbitratorOwner = accounts[5]
     const day = 24 * 60 * 60;
     const minute = 60;
     const ETH = 10**18;
-    const now = Math.floor( (+new Date()) / 1000 );
-
+    
+    let now;
     let arbitrator;
     let selfCommitment;
 
     beforeEach(async function() {
         arbitrator = await CentralizedArbitrator.new(0.1 * ETH, { from: arbitratorOwner } );
         selfCommitment = await SelfCommitment.new(arbitrator.address, [], { from: sender } );
+        now = await latestTime();
     })
   
     it('Should create a first challenge and craete two submissions', async () => {
@@ -59,6 +61,7 @@ contract('SelfCommitment', async function(accounts) {
         assert.equal(submissionTwo[4].toNumber(), 0, "state should be initial");
     });
 
+    // Creating more than just a single challenge to avoid situation 1 challenge, 1 submission, 1 dispute (everything index 0)
     it('Should create a three challenges and create two submissions to the second one and challenge then', async () => {
         await selfCommitment.createChallenge("21 pushups", now + 2*minute, now + 4*day, 20, { from: creator1, value: ETH });
         await selfCommitment.createChallenge("22 pushups", now + 2*minute, now + 4*day, 20, { from: creator2, value: ETH });
@@ -96,6 +99,56 @@ contract('SelfCommitment', async function(accounts) {
         s = await selfCommitment.getSubmissionById(disputedSubmissionID);
         assert.equal(s[4].toNumber(), 3, "state should be rejected");
     });
+
+    it('Should allow withdrawing money to original challenge creator if successful', async () => {
+        await selfCommitment.createChallenge("something", now + 5*minute, now + 4*day, 3, { from: creator1, value: 1 });
+        await selfCommitment.createChallenge("something", now + 5*minute, now + 4*day, 3, { from: creator1, value: ETH });
+        
+        await increaseTime(10*minute); 
+
+        let challengeID = 1;
+
+        await selfCommitment.createSubmission("url",  "something",  challengeID, { from: creator1 });
+        await selfCommitment.createSubmission("url2", "something2", challengeID, { from: creator1 });
+        await selfCommitment.createSubmission("url3", "something3", challengeID, { from: creator1 });
+
+        await increaseTime(4*day + 3*day + 1*minute); // 4 days duration, 3 days timeout, 1 minute just in case
+
+        let balanceBefore = web3.eth.getBalance(creator1).toNumber()
+        await selfCommitment.withdrawFunds(challengeID, { from: sender });
+        let balanceAfter = web3.eth.getBalance(creator1).toNumber()
+
+        assert.closeTo(balanceBefore + ETH, balanceAfter, 0.05 * ETH, "upon successfull completion of challenge, the balance should increase by ETH (the initial deposit)");
+
+        let c = await selfCommitment.getChallengeById(challengeID);
+        assert.equal(c[6].toNumber(), 4, "state should be successWithdraw");
+    });
+
+    it('Should allow withdrawing money to the owner creator if challenge failed', async () => {
+        await selfCommitment.createChallenge("something", now + 5*minute, now + 4*day, 3, { from: creator1, value: 1 });
+        await selfCommitment.createChallenge("something", now + 5*minute, now + 4*day, 3, { from: creator1, value: ETH });
+        
+        await increaseTime(5*minute); 
+
+        let challengeID = 1;
+
+        await selfCommitment.createSubmission("url",  "something",  challengeID, { from: creator1 });
+        await selfCommitment.createSubmission("url2", "something2", challengeID, { from: creator1 });
+
+        await increaseTime(4*day + 3*day + 1*minute); // 4 days duration, 3 days timeout, 1 minute just in case
+
+        let balanceBefore = web3.eth.getBalance(sender).toNumber()
+        await selfCommitment.withdrawFunds(challengeID, { from: sender });
+        let balanceAfter = web3.eth.getBalance(sender).toNumber()
+
+        assert.closeTo(balanceBefore + ETH, balanceAfter, 0.05 * ETH, "sender should become richer by ETH (the initial deposit)");
+
+        let c = await selfCommitment.getChallengeById(challengeID);
+        assert.equal(c[6].toNumber(), 5, "state should be failedWithdraw");
+    });
+
+
+
 
 
   })
