@@ -6,6 +6,7 @@ import "./Arbitrator.sol";
 contract SelfCommitment is IArbitrable {
 
 	event Log(string debugInfo); // I'm totally new to this business, figuring things out
+	event Log(uint debugInfo); // I'm totally new to this business, figuring things out
 
     modifier onlyArbitrator {require(msg.sender == address(arbitrator), "Can only be called by the arbitrator."); _;}
     Arbitrator public arbitrator; // address of the arbitrator contract
@@ -96,8 +97,8 @@ contract SelfCommitment is IArbitrable {
 
 	function createSubmission(string memory _url, string memory _comment, uint _challengeID) public returns (uint) {
 		require(challenges[_challengeID].user == msg.sender, "only the guy who sets the challenge can add new stuff");
-		require(challenges[_challengeID].beginning > now, "can submit only after beginning");
-		require(challenges[_challengeID].end <= now, "can submit only before end");
+		require(challenges[_challengeID].beginning <= now, "can submit only after beginning");
+		require(challenges[_challengeID].end >= now, "can submit only before end");
 
 		Submission memory submission = Submission({challengeID : _challengeID, url : _url, comment: _comment, timestamp: now, disputeID: MAX_INT, state: SubmissionState.initial });
 		uint id = submissions.push(submission) - 1;
