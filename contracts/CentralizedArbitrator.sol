@@ -27,6 +27,7 @@ contract CentralizedArbitrator is Arbitrator {
         DisputeStatus status;
     }
 
+    function transferOwnership(address newOwner) public onlyOwner { owner = newOwner; } // Prefer 2 lines over 73 lines: https://github.com/OpenZeppelin/openzeppelin-solidity/blob/master/contracts/ownership/Ownable.sol
     modifier onlyOwner {require(msg.sender==owner, "Can only be called by the owner."); _;}
 
     DisputeStruct[] public disputes;
@@ -96,11 +97,11 @@ contract CentralizedArbitrator is Arbitrator {
         dispute.arbitrated.rule(_disputeID,_ruling);
     }
 
-    /** @dev Give a ruling. UNTRUSTED. Very untrusted. In fact "onlyOwner" modifier was removed so that anyone can make a ruling! (how cool)
+    /** @dev Give a ruling. UNTRUSTED.
      *  @param _disputeID ID of the dispute to rule.
      *  @param _ruling Ruling given by the arbitrator. Note that 0 means "Not able/wanting to make a decision".
      */
-    function giveRuling(uint _disputeID, uint _ruling) public {
+    function giveRuling(uint _disputeID, uint _ruling) public onlyOwner {
         return _giveRuling(_disputeID, _ruling);
     }
 

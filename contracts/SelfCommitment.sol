@@ -82,7 +82,7 @@ contract SelfCommitment is IArbitrable {
 
 	function createChallenge(string memory _description, uint _beginning, uint _end, uint _count) payable public returns (uint) {
 		require(msg.value > 0, "You need to send a deposit"); // require a deposit, otherwise what's the point?
-		// require(_beginning > now, "Challenge cannot start in the past"); 
+		// require(_beginning > now, "Challenge cannot start in the past");
 		// require(_end > now + 1 days, "Challenge must last at least 1 day");
 		require(_count < 1000, "1000 is max, this is actually to prevent gas issues");
 		require(_count > 1, "You need to commit to do the thing at least once");
@@ -109,25 +109,27 @@ contract SelfCommitment is IArbitrable {
 	}
 
 	function getChallengeById(uint256 challengeID) public view returns(address, uint, string memory, uint, uint, uint, ChallengeState) {
-		Challenge memory c =  challenges[challengeID];
+		Challenge memory c = challenges[challengeID];
 		return(c.user, c.deposit, c.description, c.beginning, c.end, c.count, c.state);
 	}
-	
+
 	function getSubmissionById(uint256 submissionID) public view returns(uint, string memory, string memory, uint, SubmissionState) {
-		Submission memory s =  submissions[submissionID];
+		Submission memory s = submissions[submissionID];
 		return(s.challengeID, s.url, s.comment, s.timestamp, s.state);
 	}
-	
+
 	// A lot things will happen on the front-end
 	// Building metaEvidence.json and evidence.json and then uploading to IPFS
 	// Here we are only submitting IPFS paths to preserve on-chain storage
 	// We could use any "traditional" centralized storage, that's why using ipfs:// URI qualifier
-	function disputeSubmission(uint _submissionID, string _metaEvidenceURI, string _evidenceURI)  public { // public: any internet troll can dispute submission
-		uint disputeID = arbitrator.createDispute.value(0)(AMOUNT_OF_CHOICES, ""); // "" means no extraData
+	function disputeSubmission(uint _submissionID, string _metaEvidenceURI, string _evidenceURI, uint _arbitrationFee) public payable { // public: any internet troll can dispute submission
+		uint disputeID = arbitrator.createDispute.value(_arbitrationFee)(AMOUNT_OF_CHOICES, ""); // "" means no extraData
 		Submission storage s = submissions[_submissionID];
 		s.disputeID = disputeID;
 		s.state = SubmissionState.challenged;
 		uint challengeID = submissions[_submissionID].challengeID;
+
+		// TODO: Too much value sent? Refund... Need update front end too!
 
 		// "MetaEvidence has to be created before a dispute can arise."
 		// HolyCow! 10 days into the project and 23:20 on the final day I'm laerning that.
