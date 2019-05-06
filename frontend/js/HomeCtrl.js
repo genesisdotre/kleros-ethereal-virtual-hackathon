@@ -4,7 +4,7 @@ app.controller('HomeCtrl', function($scope, $q) {
     $scope.form = {
       deposit: "",
       description: "",
-      start: new Date(),
+      start: new Date( +new Date() + 1*24*60*60*1000), // 1 day from now (challenge can start only in the future)
       end: new Date( +new Date() + 30*24*60*60*1000), // 30 days from now
       howMany: 30
     };
