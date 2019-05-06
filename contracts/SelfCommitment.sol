@@ -143,7 +143,7 @@ contract SelfCommitment is IArbitrable {
 		// One MetaEvidence per challenge (1:1 relationship) so using challengeID
 		// Still confused: https://github.com/ethereum/EIPs/issues/1497#issuecomment-488121150
 		// No amount of reading will change it, the way how standard is presented has to be simplified
-		emit MetaEvidence(challengeID, _evidenceURI);
+		emit MetaEvidence(challengeID, _metaEvidenceURI);
 		emit Evidence(arbitrator, challengeID, msg.sender, _evidenceURI);
 		emit Dispute(arbitrator, disputeID, challengeID, challengeID);
 	}
