@@ -4,7 +4,7 @@ app.controller('HomeCtrl', function($scope, $q) {
     $scope.form = {
       deposit: "",
       description: "",
-      start: new Date( +new Date() + 1*24*60*60*1000), // 1 day from now (challenge can start only in the future)
+      start: new Date( +new Date() + 5*60*60*1000), // 5 minutes from now (challenge can start only in the future)
       end: new Date( +new Date() + 30*24*60*60*1000), // 30 days from now
       howMany: 30
     };
@@ -29,6 +29,11 @@ app.controller('HomeCtrl', function($scope, $q) {
   
   
     $scope.newChallenge = async function() {
+      if ($scope.form.start < new Date( +new Date() + 1*60*60*1000)) { // by default we are 5 minutes in the future
+        alert("Challenges can start only in the future");
+        return;
+      }
+
       await contract.createChallenge($scope.form.description,  Math.floor(+$scope.form.start / 1000), Math.floor(+$scope.form.end / 1000), 
                                     $scope.form.howMany, { value: ethers.utils.parseEther($scope.form.deposit)});
     }
